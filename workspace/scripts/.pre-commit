@@ -1,0 +1,23 @@
+#!/bin/sh
+
+export WWWUSER=${WWWUSER:-$(id -u)}
+export WWWGROUP=${WWWGROUP:-$(id -g)}
+export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-"rxrm"}
+
+files=$(git diff --cached --name-only --diff-filter=ACM -- '*.php');
+current_dir=$(pwd)
+cd ..
+docker-compose exec -T -u sail app php vendor/bin/pint $files --test 2> /dev/null
+ret="$?"
+cd $current_dir
+
+if [ "$ret" != "0" ]; then
+    cd ..
+    docker-compose exec -u sail app php vendor/bin/pint $files -q
+    cd $current_dir
+    echo ""
+    echo "Staged files have been updated"
+    echo "Review and stage back the changes"
+fi
+
+exit $ret

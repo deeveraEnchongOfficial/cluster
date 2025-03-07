@@ -111,7 +111,30 @@ return [
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
+        
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => env('DB_URL'),
+            'database' => env('DB_DATABASE'),
+        ],
 
+        'mongodb_jobs' => [
+            'driver' => 'mongodb',
+            'dsn' => env('DB_URL'),
+            'database' => env('DB_DATABASE').'_jobs',
+            'options' => [
+                'directConnection' => true,
+            ],
+        ],
+
+        'mongodb_sessions' => [
+            'driver' => 'mongodb',
+            'dsn' => env('DB_URL'),
+            'database' => env('DB_DATABASE').'_sessions',
+            'options' => [
+                'directConnection' => true,
+            ],
+        ],
     ],
 
     /*
@@ -148,7 +171,6 @@ return [
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
             'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
-            'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
         'default' => [

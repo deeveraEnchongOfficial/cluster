@@ -15,6 +15,15 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+    'acumatica' => [
+        'disk' => env('ACUMATICA_FILESYSTEM_DISK', 'local'),
+        'path' => env('ACUMATICA_FILESYSTEM_PATH', 'acumatica-api-response'),
+        'statement_of_account' => [
+            'disk' => env('ACUMATICA_STATEMENT_OF_ACCOUNT_FILESYSTEM_DISK', 'local'),
+            'path' => env('ACUMATICA_STATEMENT_OF_ACCOUNT_FILESYSTEM_PATH', 'acumatica-statement-of-account'),
+        ],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks
@@ -32,7 +41,7 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
+            'root' => storage_path('app'),
             'serve' => true,
             'throw' => false,
             'report' => false,

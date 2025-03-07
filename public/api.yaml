@@ -1,0 +1,135 @@
+openapi: 3.0.3
+info:
+  title: DSM x Acumatica Integrations API 
+  version: 1.0.0
+servers:
+  - url: https://integrations.thesalesmachine.com/api/v1/com_pioneer_adhesives
+tags:
+  - name: generic
+    description: A generic endpoint to consume any data from Acumatica specified by an entity type
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+paths:
+  /generic:
+    patch:
+      tags:
+        - generic
+      summary: Updates an existing entity record
+      description: Update an existing record by Id
+      operationId: updateRecord
+      requestBody:
+        description: Update an existing entity record
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Data'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Data'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Entity not found
+        '422':
+          description: Validation exception
+    post:
+      tags:
+        - generic
+      summary: Creates a new record of an entity
+      description: Add a new record of an entity
+      operationId: addRecord
+      requestBody:
+        description: Create a new record of an entity
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Data'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Data'
+        '400':
+          description: Invalid input
+        '422':
+          description: Validation exception
+    delete:
+      tags:
+        - generic
+      summary: Deletes an entity record
+      description: delete an entity record
+      operationId: deleteRecord
+      parameters:
+        - in: query
+          name: entity
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '400':
+          description: Invalid data value
+components:
+  schemas:
+    Data:
+      required:
+        - data
+        - entity
+      type: object
+      properties:
+        data:
+          type: object
+          example:
+            id: "test001"
+            first_name: "Jane"
+            last_name: "Doe"
+        entity:
+          type: string
+          example: Contact
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 200
+        message:
+          type: string
+          example: success
+      xml:
+        name: '##default'
+  requestBodies:
+    Data:
+      description: Entity object that will be added to TSM
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Data'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Data'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKey:
+      type: apiKey
+      name: X-API-KEY
+      in: header
+security:
+  - bearerAuth: []
+  - ApiKey: []
