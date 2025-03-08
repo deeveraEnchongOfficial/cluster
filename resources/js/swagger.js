@@ -1,4 +1,4 @@
-import SwaggerUI from "swagger-ui-dist/swagger-ui-bundle.js";
+import SwaggerUI from "swagger-ui-dist/swagger-ui-bundle";
 import "swagger-ui-dist/swagger-ui.css";
 
 SwaggerUI({
