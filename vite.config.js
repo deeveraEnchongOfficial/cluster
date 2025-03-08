@@ -16,12 +16,7 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            "swagger-ui-dist": "/node_modules/swagger-ui-dist", // Ensure correct path resolution
-        },
-    },
-    build: {
-        rollupOptions: {
-            external: ['swagger-ui-dist'],
+            'swagger-ui-dist': 'swagger-ui-dist/swagger-ui-bundle.js',
         },
     },
 });
