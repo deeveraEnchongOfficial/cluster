@@ -4,7 +4,7 @@ set -eo pipefail
 
 export WWWUSER=${WWWUSER:-$(id -u)}
 export WWWGROUP=${WWWGROUP:-$(id -g)}
-export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-"tsm-integrations"}
+export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-"cluster-integrations"}
 
 if [ ! -f ".devconfig" ]; then
     echo "Initialize .devconfig first."
