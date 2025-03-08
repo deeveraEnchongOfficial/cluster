@@ -22,7 +22,7 @@
     <body class="font-sans antialiased dark:bg-black dark:text-white/50">
         <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
             <div class="mt-16 text-center">
-                <h1 class="text-5xl font-bold text-gray-800">Welcome to TSM Integration Server</h1>
+                <h1 class="text-5xl font-bold text-gray-800">Welcome to Cluster Integration Server</h1>
             </div>
         </div>
     </body>
