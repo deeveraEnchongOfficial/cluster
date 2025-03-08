@@ -1,43 +1,22 @@
 openapi: 3.0.3
 info:
-  title: DSM x Acumatica Integrations API 
+  title: Cluster Integrations API
   version: 1.0.0
+
 servers:
-  - url: https://integrations.thesalesmachine.com/api/v1/com_pioneer_adhesives
+  - url: http://127.0.0.1:8000/api/v1
+
 tags:
   - name: generic
-    description: A generic endpoint to consume any data from Acumatica specified by an entity type
+    description: A generic endpoint
     externalDocs:
       description: Find out more
       url: http://swagger.io
+  - name: authentication
+    description: Authentication endpoints
+
 paths:
-  /generic:
-    patch:
-      tags:
-        - generic
-      summary: Updates an existing entity record
-      description: Update an existing record by Id
-      operationId: updateRecord
-      requestBody:
-        description: Update an existing entity record
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Data'
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Data'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Entity not found
-        '422':
-          description: Validation exception
+  /integrations/generic:
     post:
       tags:
         - generic
@@ -57,31 +36,75 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Data'
+                $ref: '#/components/schemas/ApiResponse'
         '400':
           description: Invalid input
         '422':
           description: Validation exception
-    delete:
+
+  /authenticate:
+    post:
       tags:
-        - generic
-      summary: Deletes an entity record
-      description: delete an entity record
-      operationId: deleteRecord
-      parameters:
-        - in: query
-          name: entity
-          schema:
-            type: string
-          required: true
-        - in: query
-          name: id
-          schema:
-            type: string
-          required: true
+        - authentication
+      summary: Authenticate user
+      description: Generates an authentication token for API access
+      operationId: authenticateUser
+      requestBody:
+        description: User login credentials
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+              required:
+                - email
+                - password
+        required: true
       responses:
-        '400':
-          description: Invalid data value
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Unauthorized
+
+  /user:
+    get:
+      tags:
+        - authentication
+      summary: Get authenticated user details
+      description: Fetch the details of the currently authenticated user
+      operationId: getUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  email:
+                    type: string
+        '401':
+          description: Unauthorized
+
 components:
   schemas:
     Data:
@@ -99,6 +122,7 @@ components:
         entity:
           type: string
           example: Contact
+
     ApiResponse:
       type: object
       properties:
@@ -109,18 +133,7 @@ components:
         message:
           type: string
           example: success
-      xml:
-        name: '##default'
-  requestBodies:
-    Data:
-      description: Entity object that will be added to TSM
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Data'
-        application/xml:
-          schema:
-            $ref: '#/components/schemas/Data'
+
   securitySchemes:
     bearerAuth:
       type: http
@@ -130,6 +143,7 @@ components:
       type: apiKey
       name: X-API-KEY
       in: header
+
 security:
   - bearerAuth: []
   - ApiKey: []

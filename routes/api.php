@@ -2,9 +2,10 @@
 
 use App\Http\Controllers\Acumatica\StatementOfAccountController;
 use App\Http\Controllers\Acumatica\GenericWebhookController;
+use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('com_pioneer_adhesives')
+Route::prefix('integrations')
     ->middleware(['auth-api'])
     ->group(function (): void {
         Route::controller(GenericWebhookController::class)->group(function () {
@@ -19,3 +20,14 @@ Route::prefix('acumatica')
             Route::post('/statement-of-account', 'handle');
         });
     });
+
+
+Route::middleware(['guest.check'])
+->group(function (): void {
+    Route::post('/authenticate', [AuthController::class, 'authenticate']);
+});
+
+Route::middleware(['jwt'])
+->group(function (): void {
+    Route::get('/user', [AuthController::class, 'getUser']);
+});
