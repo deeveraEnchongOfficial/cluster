@@ -1,13 +1,5 @@
 <?php
 
-/**
- * This source file is proprietary and part of The Sales Machine.
- *
- * (c) The Sales Machine Software Inc.
- *
- * @see https://thesalesmachine.com/
- */
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -63,5 +55,24 @@ class AuthController extends Controller
         }
 
         return response()->json(['user' => $user], 200);
+    }
+
+    public function getUsers(Request $request)
+    {
+        $token = $request->header('Authorization');
+
+        if (! $token) {
+            return response()->json(['error' => 'Token not provided'], 401);
+        }
+
+        $decoded = $this->jwtService->verify($request);
+
+        if (! $decoded) {
+            return response()->json(['error' => 'Invalid token'], 401);
+        }
+
+        $users = User::all();
+
+        return response()->json(['users' => $users], 200);
     }
 }

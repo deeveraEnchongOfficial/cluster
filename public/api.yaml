@@ -94,14 +94,26 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  email:
-                    type: string
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+
+  /users:
+    get:
+      tags:
+        - authentication
+      summary: Get list of users
+      description: Retrieve a list of all users
+      operationId: getUsers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Users list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
         '401':
           description: Unauthorized
 
@@ -133,6 +145,27 @@ components:
         message:
           type: string
           example: success
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123"
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          example: "johndoe@example.com"
+
+    UserListResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
 
   securitySchemes:
     bearerAuth:

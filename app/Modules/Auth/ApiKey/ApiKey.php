@@ -1,13 +1,5 @@
 <?php
 
-/**
- * This source file is proprietary and part of The Sales Machine.
- *
- * (c) The Sales Machine Software Inc.
- *
- * @see https://thesalesmachine.com/
- */
-
 namespace App\Modules\Auth\ApiKey;
 
 use App\Modules\User\User;

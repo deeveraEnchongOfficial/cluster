@@ -30,4 +30,5 @@ Route::middleware(['guest.check'])
 Route::middleware(['jwt'])
 ->group(function (): void {
     Route::get('/user', [AuthController::class, 'getUser']);
+    Route::get('/users', [AuthController::class, 'getUsers']);
 });
