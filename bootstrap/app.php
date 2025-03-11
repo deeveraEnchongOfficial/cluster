@@ -1,7 +1,7 @@
 <?php
 
 use App\Modules\Auth\Middleware\AuthApiMiddleware;
-use App\Modules\Auth\Middleware\JWTMiddleware;
+use App\Modules\Auth\Middleware\JwtMiddleware;
 use App\Modules\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;

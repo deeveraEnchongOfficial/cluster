@@ -7,7 +7,7 @@ use Closure;
 use Exception;
 use Illuminate\Http\Request;
 
-class JWTMiddleware
+class JwtMiddleware
 {
     public function __construct(private JwtService $jwtService)
     {
