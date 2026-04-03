@@ -46,6 +46,32 @@ return [
             ],
         ],
 
+        /*
+        | The cache database connection
+        */
+        'cache' => [
+            'driver' => 'mongodb',
+            'dsn' => env('DB_CACHE_DSN', env('DB_DSN', 'mongodb://127.0.0.1:27017')),
+            'database' => env('DB_CACHE_DATABASE', env('APP_ENV').'_cache'),
+            'username' => env('DB_CACHE_USERNAME', env('DB_USERNAME', '')),
+            'password' => env('DB_CACHE_PASSWORD', env('DB_PASSWORD', '')),
+            'options' => [
+                'appName' => env('APP_NAME').'_'.env('APP_ENV'),
+            ],
+        ],
+
+        'core' => [
+            'driver' => 'mongodb',
+            'dsn' => env('DB_CORE_SERVICE_DSN', env('DB_DSN', 'mongodb://127.0.0.1:27017')),
+            'database' => env('DB_CORE_SERVICE_DATABASE', env('APP_ENV').'_core'),
+            'username' => env('DB_CORE_SERVICE_USERNAME', env('DB_USERNAME', '')),
+            'password' => env('DB_CORE_SERVICE_PASSWORD', env('DB_PASSWORD', '')),
+            'options' => [
+                'appName' => env('APP_NAME').'_'.env('APP_ENV'),
+            ],
+        ],
+
+
         'mongodb' => [
             'driver' => 'mongodb',
             'dsn' => env('DB_DSN'),
