@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\App\Core\File\BrowseFilesController;
 use App\Http\Controllers\App\Core\File\UpsertFilesController;
+use App\Http\Controllers\App\Portfolio\Blog\BrowseBlogController;
+use App\Http\Controllers\App\Portfolio\Blog\UpsertBlogController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,6 +38,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/files/{file}', [UpsertFilesController::class, 'destroy'])->name('files.destroy');
     Route::get('/files/{file}/download', [UpsertFilesController::class, 'download'])->name('files.download');
     Route::post('/files/bulk-delete', [UpsertFilesController::class, 'bulkDelete'])->name('files.bulk-delete');
+
+    // Blog routes - Browse and Upsert pattern
+    Route::get('/portfolio/blogs', [BrowseBlogController::class, 'show'])->name('portfolio.blogs.browse');
+    Route::get('/portfolio/blogs/{blog}', [UpsertBlogController::class, 'show'])->name('portfolio.blogs.show');
+    Route::post('/portfolio/blogs', [UpsertBlogController::class, 'store'])->name('portfolio.blogs.store');
+    Route::patch('/portfolio/blogs/{blog}', [UpsertBlogController::class, 'update'])->name('portfolio.blogs.update');
+    Route::delete('/portfolio/blogs/{blog}', [UpsertBlogController::class, 'destroy'])->name('portfolio.blogs.destroy');
 });
 
 require __DIR__.'/auth.php';

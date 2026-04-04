@@ -71,6 +71,17 @@ return [
             ],
         ],
 
+        'portfolio' => [
+            'driver' => 'mongodb',
+            'dsn' => env('DB_PORTFOLIO_SERVICE_DSN', env('DB_DSN', 'mongodb://127.0.0.1:27017')),
+            'database' => env('DB_PORTFOLIO_SERVICE_DATABASE', env('APP_ENV').'_portfolio'),
+            'username' => env('DB_PORTFOLIO_SERVICE_USERNAME', env('DB_USERNAME', '')),
+            'password' => env('DB_PORTFOLIO_SERVICE_PASSWORD', env('DB_PASSWORD', '')),
+            'options' => [
+                'appName' => env('APP_NAME').'_'.env('APP_ENV'),
+            ],
+        ],
+
 
         'mongodb' => [
             'driver' => 'mongodb',

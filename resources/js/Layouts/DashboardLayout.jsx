@@ -5,6 +5,7 @@ import { Link } from '@inertiajs/react'
 
 const DashboardLayout = ({ children, header }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [portfolioOpen, setPortfolioOpen] = useState(false)
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: '🏠', current: true },
@@ -17,11 +18,11 @@ const DashboardLayout = ({ children, header }) => {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 lg:hidden bg-gray-600 bg-opacity-75"
+          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -31,14 +32,14 @@ const DashboardLayout = ({ children, header }) => {
         fixed inset-y-0 left-0 z-50 w-56 bg-gray-900 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="flex items-center h-16 px-6 border-b border-gray-800">
-          <Link href="/dashboard" className="text-xl font-bold text-white flex items-center">
-            <span className="text-yellow-400 mr-2">⚡</span>
+        <div className="flex items-center px-6 h-16 border-b border-gray-800">
+          <Link href="/dashboard" className="flex items-center text-xl font-bold text-white">
+            <span className="mr-2 text-yellow-400">⚡</span>
             Cluster
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden absolute right-4 text-gray-400 hover:text-white"
+            className="absolute right-4 text-gray-400 lg:hidden hover:text-white"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -46,7 +47,7 @@ const DashboardLayout = ({ children, header }) => {
           </button>
         </div>
 
-        <nav className="mt-6 px-3">
+        <nav className="px-3 mt-6">
           <div className="space-y-1">
             {navigation.map((item) => (
               <Link
@@ -66,18 +67,77 @@ const DashboardLayout = ({ children, header }) => {
             ))}
           </div>
 
-          <div className="mt-8 pt-6 border-t border-gray-800">
+          {/* Portfolio Section */}
+          <div className="pt-6 mt-8 border-t border-gray-800">
+            <button
+              onClick={() => setPortfolioOpen(!portfolioOpen)}
+              className="flex items-center px-3 py-2 w-full text-sm font-medium text-gray-300 rounded-md transition-colors duration-150 group hover:bg-gray-800 hover:text-white"
+            >
+              <span className="mr-3 text-base">💼</span>
+              Portfolio
+              <svg
+                className={`ml-auto w-4 h-4 transition-transform duration-150 ${portfolioOpen ? 'rotate-180' : ''}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {portfolioOpen && (
+              <div className="mt-1 ml-6 space-y-1">
+                <Link
+                  href="/portfolio/projects"
+                  className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-150"
+                >
+                  <span className="mr-3 text-base">🎨</span>
+                  Projects
+                </Link>
+                <Link
+                  href="/portfolio/experience"
+                  className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-150"
+                >
+                  <span className="mr-3 text-base">💡</span>
+                  Experience
+                </Link>
+                <Link
+                  href="/portfolio/skills"
+                  className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-150"
+                >
+                  <span className="mr-3 text-base">🛠️</span>
+                  Skills
+                </Link>
+                <Link
+                  href="/portfolio/achievements"
+                  className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-150"
+                >
+                  <span className="mr-3 text-base">🏆</span>
+                  Achievements
+                </Link>
+                <Link
+                  href="/portfolio/blogs"
+                  className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-150"
+                >
+                  <span className="mr-3 text-base">📝</span>
+                  Blogs
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-6 mt-8 border-t border-gray-800">
             <div className="space-y-1">
               <Link
                 href="/profile"
-                className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-150"
+                className="flex items-center px-3 py-2 text-sm font-medium text-gray-300 rounded-md transition-colors duration-150 group hover:bg-gray-800 hover:text-white"
               >
                 <span className="mr-3 text-base">👤</span>
                 Profile
               </Link>
               <Link
                 href="/settings"
-                className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-150"
+                className="flex items-center px-3 py-2 text-sm font-medium text-gray-300 rounded-md transition-colors duration-150 group hover:bg-gray-800 hover:text-white"
               >
                 <span className="mr-3 text-base">⚙️</span>
                 Settings
@@ -85,7 +145,7 @@ const DashboardLayout = ({ children, header }) => {
               <Link
                 href="/logout"
                 method="post"
-                className="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-red-400 hover:bg-gray-800 hover:text-red-300 transition-colors duration-150"
+                className="flex items-center px-3 py-2 text-sm font-medium text-red-400 rounded-md transition-colors duration-150 group hover:bg-gray-800 hover:text-red-300"
               >
                 <span className="mr-3 text-base">🚪</span>
                 Logout
@@ -96,15 +156,15 @@ const DashboardLayout = ({ children, header }) => {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex flex-col flex-1 min-w-0">
         {/* Top header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <header className="sticky top-0 z-30 bg-white border-b border-gray-200">
           <div className="px-8 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center flex-1 max-w-2xl">
+            <div className="flex justify-between items-center">
+              <div className="flex flex-1 items-center max-w-2xl">
                 <button
                   onClick={() => setSidebarOpen(true)}
-                  className="lg:hidden text-gray-500 hover:text-gray-700 mr-4"
+                  className="mr-4 text-gray-500 lg:hidden hover:text-gray-700"
                 >
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -114,23 +174,23 @@ const DashboardLayout = ({ children, header }) => {
                 {/* Search Bar */}
                 <div className="flex-1">
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
                     </div>
                     <input
                       type="text"
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg leading-5 bg-white placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-gray-300 focus:border-gray-300 text-sm"
+                      className="block py-2 pr-3 pl-10 w-full text-sm leading-5 placeholder-gray-400 bg-white rounded-lg border border-gray-200 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                       placeholder="Search..."
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4 ml-6">
+              <div className="flex items-center ml-6 space-x-4">
                 {/* Notifications */}
-                <button className="text-gray-400 hover:text-gray-600 relative">
+                <button className="relative text-gray-400 hover:text-gray-600">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
@@ -139,11 +199,11 @@ const DashboardLayout = ({ children, header }) => {
 
                 {/* User Profile */}
                 <div className="flex items-center space-x-3">
-                  <div className="text-right hidden sm:block">
+                  <div className="hidden text-right sm:block">
                     <div className="text-sm font-medium text-gray-900">John Doe</div>
                     <div className="text-xs text-gray-500">Administrator</div>
                   </div>
-                  <div className="w-9 h-9 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                  <div className="flex justify-center items-center w-9 h-9 text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-full">
                     JD
                   </div>
                 </div>
@@ -153,8 +213,8 @@ const DashboardLayout = ({ children, header }) => {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto px-8 py-8">
+        <main className="overflow-auto flex-1">
+          <div className="px-8 py-8 mx-auto max-w-7xl">
             {header && (
               <div className="mb-8">
                 {header}

@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Copyright (c) The Sales Machine (thesalesmachine.com)
- *
- * This code is owned by The Sales Machine. All rights reserved.
- */
-
 namespace App\Services\Core\File\Actions;
 
 use App\Services\Core\File\File;
