@@ -9,6 +9,7 @@ const DashboardLayout = ({ children, header }) => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: '🏠', current: true },
     { name: 'Projects', href: '/projects', icon: '📁', current: false },
+    { name: 'Files', href: '/files', icon: '📎', current: false },
     { name: 'Tasks', href: '/tasks', icon: '✅', current: false },
     { name: 'Team', href: '/team', icon: '👥', current: false },
     { name: 'Calendar', href: '/calendar', icon: '📅', current: false },
