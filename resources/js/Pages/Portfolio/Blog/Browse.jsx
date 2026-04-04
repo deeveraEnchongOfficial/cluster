@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import Pagination from '@/Components/Pagination';
+import { DataTable, DataTableCard } from '@/Components/data-table';
 import SearchFilter from '@/Components/SearchFilter';
 
 export default function Browse({ blogs, filters }) {
@@ -9,14 +9,9 @@ export default function Browse({ blogs, filters }) {
     const [selectedBlogs, setSelectedBlogs] = useState([]);
     const [showBulkActions, setShowBulkActions] = useState(false);
 
-    const handleBlogSelect = (blogId) => {
-        setSelectedBlogs(prev => {
-            const newSelection = prev.includes(blogId)
-                ? prev.filter(id => id !== blogId)
-                : [...prev, blogId];
-            setShowBulkActions(newSelection.length > 0);
-            return newSelection;
-        });
+    const handleBlogSelect = (blogIds) => {
+        setSelectedBlogs(blogIds);
+        setShowBulkActions(blogIds.length > 0);
     };
 
     const handleSearch = (searchFilters) => {
@@ -38,6 +33,133 @@ export default function Browse({ blogs, filters }) {
             });
         }
     };
+
+    const columns = useMemo(() => [
+        {
+            accessorKey: 'title',
+            header: 'Title',
+            cell: ({ row }) => {
+                const blog = row.original;
+                return (
+                    <div>
+                        <div className="text-sm font-medium text-gray-900">
+                            {blog.title}
+                        </div>
+                        {blog.excerpt && (
+                            <div className="text-sm text-gray-500 truncate max-w-xs">
+                                {blog.excerpt}
+                            </div>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: 'category',
+            header: 'Category',
+            cell: ({ row }) => {
+                const blog = row.original;
+                return (
+                    <div className="flex flex-wrap gap-1">
+                        {blog.category && blog.category.slice(0, 2).map((cat, index) => (
+                            <span
+                                key={index}
+                                className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                            >
+                                {cat}
+                            </span>
+                        ))}
+                        {blog.category && blog.category.length > 2 && (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                                +{blog.category.length - 2}
+                            </span>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: 'status',
+            header: 'Status',
+            cell: ({ row }) => {
+                const blog = row.original;
+                return (
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                        blog.metadata?.is_published
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                        {blog.metadata?.is_published ? 'Published' : 'Draft'}
+                    </span>
+                );
+            },
+        },
+        {
+            accessorKey: 'tags',
+            header: 'Tags',
+            cell: ({ row }) => {
+                const blog = row.original;
+                return (
+                    <div className="flex flex-wrap gap-1">
+                        {blog.tags && blog.tags.slice(0, 3).map((tag, index) => (
+                            <span
+                                key={index}
+                                className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
+                            >
+                                {tag}
+                            </span>
+                        ))}
+                        {blog.tags && blog.tags.length > 3 && (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                                +{blog.tags.length - 3}
+                            </span>
+                        )}
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: 'readTime',
+            header: 'Read Time',
+            cell: ({ row }) => (
+                <span className="text-sm text-gray-500">
+                    {row.original.readTime}
+                </span>
+            ),
+        },
+        {
+            accessorKey: 'created_at',
+            header: 'Created',
+            cell: ({ row }) => (
+                <span className="text-sm text-gray-500">
+                    {new Date(row.original.created_at).toLocaleDateString()}
+                </span>
+            ),
+        },
+        {
+            accessorKey: 'actions',
+            header: 'Actions',
+            cell: ({ row }) => {
+                const blog = row.original;
+                return (
+                    <div className="flex space-x-2">
+                        <Link
+                            href={route('portfolio.blogs.show', blog)}
+                            className="text-blue-600 hover:text-blue-900"
+                        >
+                            Edit
+                        </Link>
+                        <button
+                            onClick={() => router.delete(route('portfolio.blogs.destroy', blog))}
+                            className="text-red-600 hover:text-red-900"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                );
+            },
+        },
+    ], []);
 
     return (
         <DashboardLayout header="Blogs">
@@ -90,165 +212,39 @@ export default function Browse({ blogs, filters }) {
                     </div>
                 )}
 
-                {/* Datatable */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedBlogs.length === blogs.data.length}
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    setSelectedBlogs(blogs.data.map(blog => blog.id));
-                                                    setShowBulkActions(true);
-                                                } else {
-                                                    setSelectedBlogs([]);
-                                                    setShowBulkActions(false);
-                                                }
-                                            }}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        />
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Title
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Category
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Tags
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Read Time
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Created
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {blogs.data.map((blog) => (
-                                    <tr key={blog.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedBlogs.includes(blog.id)}
-                                                onChange={() => handleBlogSelect(blog.id)}
-                                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                            />
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-900">
-                                                    {blog.title}
-                                                </div>
-                                                {blog.excerpt && (
-                                                    <div className="text-sm text-gray-500 truncate max-w-xs">
-                                                        {blog.excerpt}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex flex-wrap gap-1">
-                                                {blog.category && blog.category.slice(0, 2).map((cat, index) => (
-                                                    <span
-                                                        key={index}
-                                                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
-                                                    >
-                                                        {cat}
-                                                    </span>
-                                                ))}
-                                                {blog.category && blog.category.length > 2 && (
-                                                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                                                        +{blog.category.length - 2}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 text-xs rounded-full ${
-                                                blog.metadata?.is_published
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-yellow-100 text-yellow-800'
-                                            }`}>
-                                                {blog.metadata?.is_published ? 'Published' : 'Draft'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-wrap gap-1">
-                                                {blog.tags && blog.tags.slice(0, 3).map((tag, index) => (
-                                                    <span
-                                                        key={index}
-                                                        className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"
-                                                    >
-                                                        {tag}
-                                                    </span>
-                                                ))}
-                                                {blog.tags && blog.tags.length > 3 && (
-                                                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                                                        +{blog.tags.length - 3}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {blog.readTime}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {new Date(blog.created_at).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div className="flex space-x-2">
-                                                <Link
-                                                    href={route('portfolio.blogs.show', blog)}
-                                                    className="text-blue-600 hover:text-blue-900"
-                                                >
-                                                    Edit
-                                                </Link>
-                                                <button
-                                                    onClick={() => router.delete(route('portfolio.blogs.destroy', blog))}
-                                                    className="text-red-600 hover:text-red-900"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Empty State */}
-                {blogs.data.length === 0 && (
-                    <div className="text-center py-12">
-                        <div className="text-gray-400 text-5xl mb-4">📝</div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No blog posts yet</h3>
-                        <p className="text-gray-600 mb-4">Create your first blog post to get started</p>
-                        <button
-                            onClick={() => setShowCreateModal(true)}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            Create Blog Post
-                        </button>
-                    </div>
-                )}
+                {/* DataTable */}
+                <DataTableCard>
+                    <DataTable
+                        columns={columns}
+                        items={blogs.data}
+                        selectable={true}
+                        selected={selectedBlogs}
+                        onSelect={handleBlogSelect}
+                        placeholder="No blog posts yet. Create your first blog post to get started."
+                    />
+                </DataTableCard>
 
                 {/* Pagination */}
                 {blogs.links && blogs.links.length > 3 && (
                     <div className="mt-8">
-                        <Pagination links={blogs.links} />
+                        <div className="flex justify-center">
+                            <div className="flex space-x-1">
+                                {blogs.links.map((link, index) => (
+                                    <Link
+                                        key={index}
+                                        href={link.url || '#'}
+                                        className={`px-3 py-2 rounded ${
+                                            link.active
+                                                ? 'bg-blue-600 text-white'
+                                                : link.url
+                                                ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        }`}
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
