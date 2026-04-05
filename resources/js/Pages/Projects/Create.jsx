@@ -1,10 +1,14 @@
-import React, { useState } from 'react'
-import { useForm } from '@inertiajs/react'
-import DashboardLayout from '@/Layouts/DashboardLayout'
+import React from 'react'
+import { useForm, Link } from '@inertiajs/react'
+import AdminLayout from '@/Layouts/AdminLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card'
 import { Button } from '@/Components/ui/button'
 import { Input } from '@/Components/ui/input'
 import { Label } from '@/Components/ui/label'
+import { Textarea } from '@/Components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select'
+import { AlertCircle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/Components/ui/alert'
 
 const Create = () => {
   const { data, setData, post, processing, errors } = useForm({
@@ -22,13 +26,14 @@ const Create = () => {
   }
 
   return (
-    <DashboardLayout
-      header={
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Create Project</h2>
-          <p className="text-gray-600">Add a new project to your portfolio</p>
-        </div>
-      }
+    <AdminLayout
+      title="Create Project"
+      description="Add a new project to your portfolio"
+      breadcrumbs={[
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Projects', href: '/projects' },
+        { label: 'Create', href: '/projects/create' },
+      ]}
     >
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
@@ -51,40 +56,49 @@ const Create = () => {
                   className="mt-1"
                 />
                 {errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errors.name}</AlertDescription>
+                  </Alert>
                 )}
               </div>
 
               <div className="md:col-span-2">
                 <Label htmlFor="description">Description</Label>
-                <textarea
+                <Textarea
                   id="description"
                   value={data.description}
                   onChange={(e) => setData('description', e.target.value)}
                   placeholder="Enter project description"
                   rows={4}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  className="mt-1"
                 />
                 {errors.description && (
-                  <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errors.description}</AlertDescription>
+                  </Alert>
                 )}
               </div>
 
               <div>
                 <Label htmlFor="status">Status *</Label>
-                <select
-                  id="status"
-                  value={data.status}
-                  onChange={(e) => setData('status', e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                >
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                  <option value="on_hold">On Hold</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
+                <Select value={data.status} onValueChange={(value) => setData('status', value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="on_hold">On Hold</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
                 {errors.status && (
-                  <p className="text-red-500 text-sm mt-1">{errors.status}</p>
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errors.status}</AlertDescription>
+                  </Alert>
                 )}
               </div>
 
@@ -101,7 +115,10 @@ const Create = () => {
                   className="mt-1"
                 />
                 {errors.budget && (
-                  <p className="text-red-500 text-sm mt-1">{errors.budget}</p>
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errors.budget}</AlertDescription>
+                  </Alert>
                 )}
               </div>
 
@@ -115,7 +132,10 @@ const Create = () => {
                   className="mt-1"
                 />
                 {errors.start_date && (
-                  <p className="text-red-500 text-sm mt-1">{errors.start_date}</p>
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errors.start_date}</AlertDescription>
+                  </Alert>
                 )}
               </div>
 
@@ -129,17 +149,20 @@ const Create = () => {
                   className="mt-1"
                 />
                 {errors.end_date && (
-                  <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errors.end_date}</AlertDescription>
+                  </Alert>
                 )}
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3">
-              <Link href={route('projects.index')}>
-                <Button variant="outline" type="button">
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" type="button" asChild>
+                <Link href={route('projects.index')}>
                   Cancel
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button type="submit" disabled={processing}>
                 {processing ? 'Creating...' : 'Create Project'}
               </Button>
@@ -147,7 +170,7 @@ const Create = () => {
           </form>
         </CardContent>
       </Card>
-    </DashboardLayout>
+    </AdminLayout>
   )
 }
 

@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
-import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
+import { Link, router, useForm } from '@inertiajs/react';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Input } from '@/Components/ui/input';
+import { Label } from '@/Components/ui/label';
+import { Textarea } from '@/Components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import { Badge } from '@/Components/ui/badge';
+import { Separator } from '@/Components/ui/separator';
+import { Alert, AlertDescription } from '@/Components/ui/alert';
+import { AlertCircle, Save, ArrowLeft, X } from 'lucide-react';
 
 export default function Upsert({ blog }) {
     const [isPreview, setIsPreview] = useState(false);
-    
+
     const { data, setData, post, patch, processing, errors, reset } = useForm({
         title: blog?.title || '',
         category: blog?.category || [],
@@ -18,7 +28,7 @@ export default function Upsert({ blog }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         if (blog?.id) {
             patch(route('portfolio.blogs.update', blog), {
                 onSuccess: () => {
@@ -26,7 +36,7 @@ export default function Upsert({ blog }) {
                 }
             });
         } else {
-            post(route('portfolio.blogs.store'), {
+            post(route('portfolio.blogs.handle'), {
                 onSuccess: () => {
                     reset();
                 }
@@ -62,68 +72,69 @@ export default function Upsert({ blog }) {
     const commonCategories = ['Technology', 'Design', 'Business', 'Marketing', 'Development', 'Tutorial'];
 
     return (
-        <DashboardLayout header={blog?.id ? 'Edit Blog Post' : 'Create Blog Post'}>
-            <Head title={blog?.id ? 'Edit Blog Post' : 'Create Blog Post'} />
-
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                    {/* Header */}
-                    <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                        <h1 className="text-xl font-semibold text-gray-900">
-                            {blog?.id ? 'Edit Blog Post' : 'Create Blog Post'}
-                        </h1>
-                        <div className="flex items-center space-x-2">
-                            <button
-                                onClick={() => setIsPreview(!isPreview)}
-                                className={`px-3 py-1 rounded text-sm ${
-                                    isPreview 
-                                        ? 'bg-blue-600 text-white' 
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                }`}
-                            >
-                                {isPreview ? 'Edit' : 'Preview'}
-                            </button>
-                            <Link
-                                href={route('portfolio.blogs.browse')}
-                                className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm hover:bg-gray-300"
-                            >
-                                Cancel
-                            </Link>
-                        </div>
-                    </div>
+        <AdminLayout
+            title={blog?.id ? 'Edit Blog Post' : 'Create Blog Post'}
+            description={blog?.id ? 'Update your blog post content' : 'Create a new blog post'}
+            breadcrumbs={[
+                { label: 'Dashboard', href: '/dashboard' },
+                { label: 'Blogs', href: '/portfolio/blogs' },
+                { label: blog?.id ? 'Edit' : 'Create', href: blog?.id ? `/portfolio/blogs/${blog.id}` : '/portfolio/blogs/create' },
+            ]}
+            action={
+                <div className="flex gap-2">
+                    <Button variant="outline" asChild>
+                        <Link href={route('portfolio.blogs.browse')}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Cancel
+                        </Link>
+                    </Button>
+                    <Button
+                        variant={isPreview ? 'default' : 'outline'}
+                        onClick={() => setIsPreview(!isPreview)}
+                    >
+                        {isPreview ? 'Edit' : 'Preview'}
+                    </Button>
+                </div>
+            }
+        >
+            <div className="max-w-4xl mx-auto">
+                <Card>
 
                     {!isPreview ? (
-                        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                            {/* Title */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Title
-                                </label>
-                                <input
+                        <CardContent className="pt-6">
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                {/* Title */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="title">
+                                        Title
+                                    </Label>
+                                <Input
                                     type="text"
                                     value={data.title}
                                     onChange={(e) => setData('title', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Enter blog title..."
                                     required
                                 />
                                 {errors.title && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+                                    <Alert variant="destructive" className="mt-2">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertDescription>{errors.title}</AlertDescription>
+                                    </Alert>
                                 )}
                             </div>
 
                             {/* Excerpt */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Excerpt
-                                </label>
-                                <textarea
-                                    value={data.excerpt}
-                                    onChange={(e) => setData('excerpt', e.target.value)}
-                                    rows={3}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Brief description of the blog post..."
-                                />
+                                <div className="space-y-2">
+                                    <Label htmlFor="excerpt">Excerpt</Label>
+                                    <Textarea
+                                        id="excerpt"
+                                        value={data.excerpt}
+                                        onChange={(e) => setData('excerpt', e.target.value)}
+                                        rows={3}
+                                        placeholder="Brief description of your blog post..."
+                                    />
+                                </div>
                                 {errors.excerpt && (
                                     <p className="mt-1 text-sm text-red-600">{errors.excerpt}</p>
                                 )}
@@ -279,19 +290,21 @@ export default function Upsert({ blog }) {
                                 </button>
                             </div>
                         </form>
+                        </CardContent>
                     ) : (
-                        <div className="p-6">
-                            <h1 className="text-2xl font-bold text-gray-900 mb-4">{data.title}</h1>
+                        <CardContent className="pt-6">
+                            <h1 className="text-2xl font-bold mb-4">{data.title}</h1>
                             {data.excerpt && (
-                                <p className="text-gray-600 mb-4">{data.excerpt}</p>
+                                <p className="text-muted-foreground mb-4">{data.excerpt}</p>
                             )}
+                            <Separator className="my-4" />
                             <div className="prose max-w-none">
                                 <div className="whitespace-pre-wrap">{data.content}</div>
                             </div>
-                        </div>
+                        </CardContent>
                     )}
-                </div>
+                </Card>
             </div>
-        </DashboardLayout>
+        </AdminLayout>
     );
 }

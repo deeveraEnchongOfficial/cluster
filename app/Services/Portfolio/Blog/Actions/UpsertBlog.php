@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Core\File\Actions;
+namespace App\Services\Portfolio\Blog\Actions;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Services\Portfolio\Blog\Blog;

@@ -41,9 +41,10 @@ Route::middleware('auth')->group(function () {
 
     // Blog routes - Browse and Upsert pattern
     Route::get('/portfolio/blogs', [BrowseBlogController::class, 'show'])->name('portfolio.blogs.browse');
+    Route::get('/portfolio/blogs/create', [UpsertBlogController::class, 'show'])->name('portfolio.blogs.create');
     Route::get('/portfolio/blogs/{blog}', [UpsertBlogController::class, 'show'])->name('portfolio.blogs.show');
-    Route::post('/portfolio/blogs', [UpsertBlogController::class, 'store'])->name('portfolio.blogs.store');
-    Route::patch('/portfolio/blogs/{blog}', [UpsertBlogController::class, 'update'])->name('portfolio.blogs.update');
+    Route::post('/portfolio/blogs/handle', [UpsertBlogController::class, 'handle'])->name('portfolio.blogs.handle');
+    Route::patch('/portfolio/blogs/{blog}', [UpsertBlogController::class, 'handle'])->name('portfolio.blogs.update');
     Route::delete('/portfolio/blogs/{blog}', [UpsertBlogController::class, 'destroy'])->name('portfolio.blogs.destroy');
 });
 

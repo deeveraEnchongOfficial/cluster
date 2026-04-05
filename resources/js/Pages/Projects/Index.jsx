@@ -1,64 +1,73 @@
 import React from 'react'
 import { Link } from '@inertiajs/react'
-import DashboardLayout from '@/Layouts/DashboardLayout'
+import AdminLayout from '@/Layouts/AdminLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card'
 import { Button } from '@/Components/ui/button'
+import { Badge } from '@/Components/ui/badge'
+import { PlusCircle, Eye, Edit } from 'lucide-react'
 
 const Index = ({ projects }) => {
   return (
-    <DashboardLayout
-      header={
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
-            <p className="text-gray-600">Manage your projects</p>
-          </div>
+    <AdminLayout
+      title="Projects"
+      description="Manage your projects"
+      action={
+        <Button asChild>
           <Link href={route('projects.create')}>
-            <Button>Create Project</Button>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Create Project
           </Link>
-        </div>
+        </Button>
       }
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects.data.map((project) => (
           <Card key={project.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle className="text-lg">{project.name}</CardTitle>
-              <CardDescription>{project.description}</CardDescription>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-lg">{project.name}</CardTitle>
+                  <CardDescription className="mt-1.5">{project.description}</CardDescription>
+                </div>
+                <Badge
+                  variant={
+                    project.status === 'active' ? 'default' :
+                    project.status === 'completed' ? 'secondary' :
+                    'outline'
+                  }
+                >
+                  {project.status.replace('_', ' ')}
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Status:</span>
-                  <span className={`text-sm font-medium ${
-                    project.status === 'active' ? 'text-green-600' :
-                    project.status === 'completed' ? 'text-blue-600' :
-                    project.status === 'on_hold' ? 'text-yellow-600' :
-                    'text-red-600'
-                  }`}>
-                    {project.status.replace('_', ' ').toUpperCase()}
-                  </span>
-                </div>
+              <div className="space-y-3">
                 {project.budget && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-500">Budget:</span>
-                    <span className="text-sm font-medium">${project.budget}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Budget:</span>
+                    <span className="font-medium">${project.budget.toLocaleString()}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-500">Created:</span>
-                  <span className="text-sm font-medium">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Created:</span>
+                  <span className="font-medium">
                     {new Date(project.created_at).toLocaleDateString()}
                   </span>
                 </div>
               </div>
-              <div className="mt-4 flex space-x-2">
-                <Link href={route('projects.show', project.id)}>
-                  <Button variant="outline" size="sm">View</Button>
-                </Link>
-                <Link href={route('projects.edit', project.id)}>
-                  <Button variant="outline" size="sm">Edit</Button>
-                </Link>
+              <div className="mt-6 flex gap-2">
+                <Button variant="outline" size="sm" asChild className="flex-1">
+                  <Link href={route('projects.show', project.id)}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    View
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild className="flex-1">
+                  <Link href={route('projects.edit', project.id)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -66,36 +75,48 @@ const Index = ({ projects }) => {
       </div>
 
       {projects.data.length === 0 && (
-        <div className="text-center py-12">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No projects yet</h3>
-          <p className="text-gray-600 mb-4">Get started by creating your first project.</p>
-          <Link href={route('projects.create')}>
-            <Button>Create Project</Button>
-          </Link>
-        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="rounded-full bg-muted p-3 mb-4">
+              <PlusCircle className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
+            <p className="text-muted-foreground mb-4">Get started by creating your first project.</p>
+            <Button asChild>
+              <Link href={route('projects.create')}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create Project
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
       {projects.links && projects.links.length > 3 && (
         <div className="mt-6 flex justify-center">
-          <div className="flex space-x-1">
+          <div className="flex gap-1">
             {projects.links.map((link, index) => (
-              <Link
+              <Button
                 key={index}
-                href={link.url || '#'}
-                className={`px-3 py-2 text-sm ${
-                  link.active
-                    ? 'bg-primary-500 text-white'
-                    : link.url
-                    ? 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
-                dangerouslySetInnerHTML={{ __html: link.label }}
-              />
+                asChild={!!link.url}
+                variant={link.active ? 'default' : 'outline'}
+                size="sm"
+                disabled={!link.url}
+              >
+                {link.url ? (
+                  <Link
+                    href={link.url}
+                    dangerouslySetInnerHTML={{ __html: link.label }}
+                  />
+                ) : (
+                  <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                )}
+              </Button>
             ))}
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </AdminLayout>
   )
 }
 

@@ -31,7 +31,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Dashboard
                                 </NavLink>
                                 <NavLink
-                                    href={route('files.index')}
+                                    href={route('files.browse')}
                                     active={route().current('files.*')}
                                 >
                                     Files
@@ -141,7 +141,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             Dashboard
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
-                            href={route('files.index')}
+                            href={route('files.browse')}
                             active={route().current('files.*')}
                         >
                             Files
