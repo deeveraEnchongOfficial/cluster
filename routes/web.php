@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/files/{file}', [UpsertFilesController::class, 'destroy'])->name('files.destroy');
     Route::get('/files/{file}/download', [UpsertFilesController::class, 'download'])->name('files.download');
     Route::post('/files/bulk-delete', [UpsertFilesController::class, 'bulkDelete'])->name('files.bulk-delete');
+    Route::post('/files/resync-drive', [UpsertFilesController::class, 'resyncFromDrive'])->name('files.resync-drive');
 
     // Blog routes - Browse and Upsert pattern
     Route::get('/portfolio/blogs', [BrowseBlogController::class, 'show'])->name('portfolio.blogs.browse');

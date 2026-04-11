@@ -28,7 +28,20 @@ export default function UploadModal({ show, onClose, onSuccess }) {
 
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             const droppedFiles = Array.from(e.dataTransfer.files);
-            const validFiles = droppedFiles.filter(file => file.size <= 10 * 1024 * 1024); // 10MB limit
+            const validFiles = droppedFiles.filter(file => {
+                // Check file size (5MB limit)
+                if (file.size > 5 * 1024 * 1024) {
+                    return false;
+                }
+
+                // Check file type (image, GIF, or video only)
+                const allowedTypes = [
+                    'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+                    'video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv', 'video/webm'
+                ];
+
+                return allowedTypes.includes(file.type);
+            });
             setFiles(prev => [...prev, ...validFiles]);
             setData('files', [...files, ...validFiles]);
         }
@@ -38,7 +51,20 @@ export default function UploadModal({ show, onClose, onSuccess }) {
         e.preventDefault();
         if (e.target.files && e.target.files[0]) {
             const selectedFiles = Array.from(e.target.files);
-            const validFiles = selectedFiles.filter(file => file.size <= 10 * 1024 * 1024); // 10MB limit
+            const validFiles = selectedFiles.filter(file => {
+                // Check file size (5MB limit)
+                if (file.size > 5 * 1024 * 1024) {
+                    return false;
+                }
+
+                // Check file type (image, GIF, or video only)
+                const allowedTypes = [
+                    'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+                    'video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv', 'video/webm'
+                ];
+
+                return allowedTypes.includes(file.type);
+            });
             setFiles(validFiles);
             setData('files', validFiles);
         }
@@ -52,7 +78,7 @@ export default function UploadModal({ show, onClose, onSuccess }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         const formData = new FormData();
         files.forEach((file, index) => {
             formData.append(`files[${index}]`, file);
@@ -139,7 +165,7 @@ export default function UploadModal({ show, onClose, onSuccess }) {
                                                 Drag and drop files here, or click to select files
                                             </p>
                                             <p className="text-sm text-gray-500">
-                                                Maximum file size: 10MB
+                                                Maximum file size: 5MB | Images, GIF & Videos only
                                             </p>
                                         </div>
                                     </div>

@@ -128,4 +128,56 @@ class FileUpload
 
         return $uploadedFiles;
     }
+
+    // upsert file without uploading
+    public function upsertWithoutUpload(
+        File $file,
+        ?string $name = null,
+        ?string $originalName = null,
+        ?string $mimeType = null,
+        ?int $size = null,
+        ?string $path = null,
+        ?string $disk = null,
+        ?string $storageType = null,
+        ?string $folderPath = null,
+        ?string $externalId = null,
+        ?string $webViewLink = null,
+        ?string $webContentLink = null,
+        ?Model $uploadedBy = null,
+        array $metadata = [],
+        bool $isPublic = false,
+    ): File
+    {
+        // Create the File entry
+        $fileData = [
+            'name' => $name,
+            'original_name' => $originalName,
+            'mime_type' => $mimeType,
+            'size' => $size,
+            'path' => $path,
+            'disk' => $disk,
+            'hash' => $disk === 'google_drive' ? null : hash_file('sha256', $path),
+            'is_public' => $isPublic,
+            'external_id' => $externalId,
+            'web_view_link' => $webViewLink,
+            'web_content_link' => $webContentLink,
+        ];
+
+        $file->forceFill($fileData);
+
+        // Add metadata if provided
+        if (!empty($metadata)) {
+            $file->replaceMetadata($metadata);
+        }
+
+        // Associate with user if provided
+        if ($uploadedBy) {
+            $file->createdBy()->associate($uploadedBy);
+            $file->ownedBy()->associate($uploadedBy);
+        }
+
+        $file->save();
+
+        return $file;
+    }
 }

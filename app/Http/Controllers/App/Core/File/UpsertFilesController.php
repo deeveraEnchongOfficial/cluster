@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Services\Core\User\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Services\Core\Storage\GoogleDriveStorage;
 
 class UpsertFilesController extends Controller
 {
@@ -19,6 +20,7 @@ class UpsertFilesController extends Controller
 
     public function __construct(
         private readonly FileUpload $fileUpload,
+        private readonly GoogleDriveStorage $googleDriveStorage,
     ) {
         $this->middleware('auth');
     }
@@ -42,7 +44,11 @@ class UpsertFilesController extends Controller
     {
         $validated = $request->validate([
             'files' => 'required|array|max:10',
-            'files.*' => 'file|max:5120', // 5MB max per file
+            'files.*' => [
+                'file',
+                'max:5120', // 5MB max per file
+                'mimes:image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,video/mp4,video/avi,video/mov,video/wmv,video/flv,video/webm'
+            ],
             'description' => 'nullable|string|max:1000',
             'is_public' => 'boolean',
             'storage_type' => 'nullable|in:local,google_drive',
@@ -142,5 +148,70 @@ class UpsertFilesController extends Controller
         }
 
         return back()->with('success', 'Files deleted successfully.');
+    }
+
+    /**
+     * Resync files from Google Drive.
+     */
+    public function resyncFromDrive(Request $request): RedirectResponse
+    {
+        try {
+            $user = auth()->user();
+            $syncedCount = 0;
+
+            // Define the target folder path
+            $folderPath = 'Florencio(sharedFolder)/portfolio resources';
+
+            // Set user on GoogleDriveStorage and get all files from Google Drive folder
+            $driveFiles = $this->googleDriveStorage->setUser($user)->listFiles($folderPath);
+
+            // Get existing file external IDs from database
+            $existingExternalIds = File::where('disk', 'google_drive')
+                ->where('created_by_id', $user->id)
+                ->pluck('external_id')
+                ->filter()
+                ->toArray();
+
+            // Process each Google Drive file
+            foreach ($driveFiles as $driveFile) {
+                // Skip if file already exists in database
+
+                // if size is null, skip
+                if (!$driveFile['size']) {
+                    continue;
+                }
+
+                if (in_array($driveFile['id'], $existingExternalIds)) {
+                    continue;
+                }
+
+                $this->fileUpload->upsertWithoutUpload(
+                    file: new File(),
+                    name: $driveFile['name'],
+                    originalName: $driveFile['name'],
+                    mimeType: $driveFile['mimeType'] ?? 'application/octet-stream',
+                    size: (int) $driveFile['size'],
+                    path: $driveFile['id'],
+                    disk: 'google_drive',
+                    storageType: 'google_drive',
+                    folderPath: $folderPath,
+                    externalId: $driveFile['id'],
+                    webViewLink: $driveFile['webViewLink'] ?? null,
+                    webContentLink: $driveFile['webContentLink'] ?? null,
+                    uploadedBy: $user,
+                    metadata: [],
+                    isPublic: true,
+                );
+
+
+                $syncedCount++;
+            }
+
+            return back()->with('success', "Successfully synced {$syncedCount} files from Google Drive.")
+                ->with('synced_count', $syncedCount);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to sync files from Google Drive: ' . $e->getMessage());
+        }
     }
 }

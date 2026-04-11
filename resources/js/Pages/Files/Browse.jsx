@@ -10,7 +10,7 @@ import { Checkbox } from '@/Components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import {
   Upload, Download, Eye, Trash2, FileImage, FileVideo, FileAudio,
-  FileText, FileSpreadsheet, File, Archive, Globe, Lock
+  FileText, FileSpreadsheet, File, Archive, Globe, Lock, RefreshCw
 } from 'lucide-react';
 import UploadModal from '@/Components/UploadModal';
 
@@ -18,6 +18,10 @@ export default function Browse({ files, filters }) {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [showBulkActions, setShowBulkActions] = useState(false);
+    const [isResyncing, setIsResyncing] = useState(false);
+    const [showImageModal, setShowImageModal] = useState(false);
+    const [currentImage, setCurrentImage] = useState(null);
+    const [imageLoading, setImageLoading] = useState(false);
 
     const handleFileSelect = (fileId) => {
         setSelectedFiles(prev => {
@@ -40,10 +44,10 @@ export default function Browse({ files, filters }) {
     };
 
     const handleBulkDelete = () => {
-        if (confirm('Are you sure you want to delete the selected files?')) {
-            router.post(route('files.bulk-delete'), {
-                file_ids: selectedFiles
-            }, {
+        if (selectedFiles.length === 0) return;
+
+        if (confirm(`Are you sure you want to delete ${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''}?`)) {
+            router.post(route('files.bulk-delete'), { file_ids: selectedFiles }, {
                 onSuccess: () => {
                     setSelectedFiles([]);
                     setShowBulkActions(false);
@@ -52,8 +56,61 @@ export default function Browse({ files, filters }) {
         }
     };
 
+    const handleResyncFromDrive = () => {
+        if (!confirm('This will scan Google Drive and add any missing files to the system. Continue?')) {
+            return;
+        }
+
+        setIsResyncing(true);
+
+        router.post(route('files.resync-drive'), {}, {
+            onSuccess: (page) => {
+                // Show success message and refresh the page
+                const syncedCount = page.props.synced_count || 0;
+                alert(`Successfully synced ${syncedCount} files from Google Drive.`);
+                router.reload();
+            },
+            onError: (errors) => {
+                console.error('Resync errors:', errors);
+                alert('Failed to sync files from Google Drive. Please try again.');
+            },
+            onFinish: () => {
+                setIsResyncing(false);
+            }
+        });
+    };
+
     const handleDownload = (file) => {
         window.open(route('files.download', file.id), '_blank');
+    };
+
+    const handleViewImage = (file) => {
+        // Check if file is an image type
+        const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/heif', 'image/heic'];
+
+        if (imageTypes.includes(file.mime_type)) {
+            // Use webContentLink for direct image access
+            let imageUrl = file.web_content_link;
+
+            // If webContentLink is not available, try the thumbnail format
+            if (!imageUrl) {
+                imageUrl = `https://drive.google.com/thumbnail?id=${file.external_id}&sz=w1000`;
+            }
+
+            console.log('Image URL:', imageUrl); // Debug log
+            console.log('File data:', { external_id: file.external_id, web_content_link: file.web_content_link });
+
+            setImageLoading(true);
+            setCurrentImage({
+                url: imageUrl,
+                name: file.original_name,
+                mimeType: file.mime_type
+            });
+            setShowImageModal(true);
+        } else {
+            // For non-image files, use the original behavior
+            window.open(file.web_view_link, '_blank');
+        }
     };
 
     const getFileIcon = (mimeType) => {
@@ -88,16 +145,30 @@ export default function Browse({ files, filters }) {
                 { label: 'Files', href: '/files' },
             ]}
             action={
-                <Button onClick={() => setShowUploadModal(true)}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Files
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => handleResyncFromDrive()}
+                        disabled={isResyncing}
+                    >
+                        {isResyncing ? (
+                            <RefreshCw className="mr-2 w-4 h-4 animate-spin" />
+                        ) : (
+                            <RefreshCw className="mr-2 w-4 h-4" />
+                        )}
+                        {isResyncing ? 'Syncing...' : 'Resync from Drive'}
+                    </Button>
+                    <Button onClick={() => setShowUploadModal(true)}>
+                        <Upload className="mr-2 w-4 h-4" />
+                        Upload Files
+                    </Button>
+                </div>
             }
         >
             <div className="space-y-4">
                 <Card>
                     <CardContent className="pt-6">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div className="flex flex-col gap-4 justify-between items-start sm:flex-row sm:items-center">
                             <Input
                                 placeholder="Search files..."
                                 value={filters.search || ''}
@@ -110,7 +181,7 @@ export default function Browse({ files, filters }) {
                                 className="max-w-sm"
                             />
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex gap-2 items-center">
                                 <Select
                                     value={filters.type || 'all'}
                                     onValueChange={(value) => {
@@ -161,7 +232,7 @@ export default function Browse({ files, filters }) {
 
                 {showBulkActions && (
                     <Card className="border-primary/50 bg-primary/5">
-                        <CardContent className="flex items-center justify-between py-4">
+                        <CardContent className="flex justify-between items-center py-4">
                             <span className="text-sm font-medium">
                                 {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''} selected
                             </span>
@@ -170,75 +241,73 @@ export default function Browse({ files, filters }) {
                                 size="sm"
                                 onClick={handleBulkDelete}
                             >
-                                <Trash2 className="mr-2 h-4 w-4" />
+                                <Trash2 className="mr-2 w-4 h-4" />
                                 Delete Selected
                             </Button>
                         </CardContent>
                     </Card>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {files.data.length > 0 ? (
                         files.data.map((file) => (
-                            <Card key={file.id} className="hover:shadow-lg transition-shadow">
+                            <Card key={file.id} className="transition-shadow hover:shadow-lg">
                                 <CardContent className="p-4">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <div className="flex items-center gap-2">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex gap-2 items-center">
                                             <Checkbox
                                                 checked={selectedFiles.includes(file.id)}
                                                 onCheckedChange={() => handleFileSelect(file.id)}
                                             />
                                             {getFileIcon(file.mime_type)}
                                         </div>
-                                        <div className="flex items-center gap-1">
+                                        <div className="flex gap-1 items-center">
                                             {file.is_public ? (
                                                 <Badge variant="default" className="gap-1">
-                                                    <Globe className="h-3 w-3" />
+                                                    <Globe className="w-3 h-3" />
                                                     Public
                                                 </Badge>
                                             ) : (
                                                 <Badge variant="secondary" className="gap-1">
-                                                    <Lock className="h-3 w-3" />
+                                                    <Lock className="w-3 h-3" />
                                                     Private
                                                 </Badge>
                                             )}
                                         </div>
                                     </div>
 
-                                    <h3 className="font-medium truncate mb-1" title={file.original_name}>
+                                    <h3 className="mb-1 font-medium truncate" title={file.original_name}>
                                         {file.original_name}
                                     </h3>
 
-                                    <p className="text-sm text-muted-foreground mb-2">
+                                    <p className="mb-2 text-sm text-muted-foreground">
                                         {file.formatted_size}
                                     </p>
 
                                     {file.description && (
-                                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                                        <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
                                             {file.description}
                                         </p>
                                     )}
 
-                                    <div className="flex items-center justify-between pt-3 border-t">
+                                    <div className="flex justify-between items-center pt-3 border-t">
                                         <span className="text-xs text-muted-foreground">
                                             {new Date(file.created_at).toLocaleDateString()}
                                         </span>
-                                        <div className="flex items-center gap-1">
+                                        <div className="flex gap-1 items-center">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => handleDownload(file)}
                                             >
-                                                <Download className="h-4 w-4" />
+                                                <Download className="w-4 h-4" />
                                             </Button>
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                asChild
+                                                onClick={() => handleViewImage(file)}
                                             >
-                                                <Link href={route('files.show', file.id)}>
-                                                    <Eye className="h-4 w-4" />
-                                                </Link>
+                                                <Eye className="w-4 h-4" />
                                             </Button>
                                         </div>
                                     </div>
@@ -247,14 +316,14 @@ export default function Browse({ files, filters }) {
                         ))
                     ) : (
                         <Card className="col-span-full">
-                            <CardContent className="flex flex-col items-center justify-center py-16">
-                                <div className="rounded-full bg-muted p-3 mb-4">
-                                    <File className="h-10 w-10 text-muted-foreground" />
+                            <CardContent className="flex flex-col justify-center items-center py-16">
+                                <div className="p-3 mb-4 rounded-full bg-muted">
+                                    <File className="w-10 h-10 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-lg font-semibold mb-2">No files found</h3>
-                                <p className="text-muted-foreground mb-4">Get started by uploading your first file.</p>
+                                <h3 className="mb-2 text-lg font-semibold">No files found</h3>
+                                <p className="mb-4 text-muted-foreground">Get started by uploading your first file.</p>
                                 <Button onClick={() => setShowUploadModal(true)}>
-                                    <Upload className="mr-2 h-4 w-4" />
+                                    <Upload className="mr-2 w-4 h-4" />
                                     Upload Files
                                 </Button>
                             </CardContent>
@@ -296,6 +365,45 @@ export default function Browse({ files, filters }) {
                     router.reload();
                 }}
             />
+        {/* Image Modal */}
+            <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
+                <DialogContent className="max-w-4xl max-h-[90vh]">
+                    <DialogHeader>
+                        <DialogTitle>{currentImage?.name}</DialogTitle>
+                        <DialogDescription>
+                            Image preview
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-center items-center p-4">
+                        {currentImage && (
+                            <div className="relative">
+                                {imageLoading && (
+                                    <div className="flex absolute inset-0 justify-center items-center bg-gray-100 rounded-lg">
+                                        <div className="w-12 h-12 rounded-full border-b-2 border-blue-600 animate-spin"></div>
+                                    </div>
+                                )}
+                                <img
+                                    src={currentImage.url}
+                                    alt={currentImage.name}
+                                    className={`max-w-full max-h-[70vh] object-contain rounded-lg ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+                                    onLoad={() => setImageLoading(false)}
+                                    onError={(e) => {
+                                        console.error('Image failed to load:', currentImage.url);
+                                        setImageLoading(false);
+                                        // Try fallback URL
+                                        if (!e.target.src.includes('thumbnail')) {
+                                            const externalId = currentImage.url.match(/id=([^&]+)/)?.[1];
+                                            if (externalId) {
+                                                e.target.src = `https://drive.google.com/thumbnail?id=${externalId}&sz=w1000`;
+                                            }
+                                        }
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </AdminLayout>
     );
 }

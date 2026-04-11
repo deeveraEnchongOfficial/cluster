@@ -156,48 +156,6 @@ export function Sidebar({ isOpen, onClose }) {
 
                         <Separator className="my-4" />
 
-                        {/* Theme, Notification, and Profile Icons */}
-                        <div className="space-y-1">
-                            <Button
-                                variant="ghost"
-                                className="gap-3 justify-start px-3 py-2 w-full h-auto"
-                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            >
-                                {theme === 'dark' ? (
-                                    <Sun className="w-4 h-4" />
-                                ) : (
-                                    <Moon className="w-4 h-4" />
-                                )}
-                                <span className="text-sm font-medium">
-                                    {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                                </span>
-                            </Button>
-
-                            <Button
-                                variant="ghost"
-                                className="relative gap-3 justify-start px-3 py-2 w-full h-auto"
-                            >
-                                <Bell className="w-4 h-4" />
-                                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-destructive" />
-                                <span className="text-sm font-medium">Notifications</span>
-                            </Button>
-
-                            <Button
-                                variant="ghost"
-                                className="gap-3 justify-start px-3 py-2 w-full h-auto"
-                                onClick={() => window.location.href = '/profile'}
-                            >
-                                <div className="relative w-4 h-4">
-                                    <div className="flex justify-center items-center w-4 h-4 text-xs font-medium rounded-full bg-primary text-primary-foreground">
-                                        {user?.name?.charAt(0).toUpperCase() || 'U'}
-                                    </div>
-                                </div>
-                                <span className="text-sm font-medium">Profile</span>
-                            </Button>
-                        </div>
-
-                        <Separator className="my-4" />
-
                         <div className="space-y-1">
                             <button
                                 onClick={() => setSettingsOpen(!settingsOpen)}
