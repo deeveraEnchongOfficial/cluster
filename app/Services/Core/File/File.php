@@ -23,11 +23,19 @@ class File extends Model
 
     public function getUrlAttribute(): string
     {
+        if ($this->disk === 'google_drive' && $this->web_view_link) {
+            return $this->web_view_link;
+        }
+
         return Storage::disk($this->disk)->url($this->path);
     }
 
     public function getDownloadUrlAttribute(): string
     {
+        if ($this->disk === 'google_drive' && $this->web_content_link) {
+            return $this->web_content_link;
+        }
+
         return route('files.download', $this->id);
     }
 

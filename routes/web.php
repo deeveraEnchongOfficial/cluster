@@ -6,6 +6,11 @@ use App\Http\Controllers\App\Core\File\BrowseFilesController;
 use App\Http\Controllers\App\Core\File\UpsertFilesController;
 use App\Http\Controllers\App\Portfolio\Blog\BrowseBlogController;
 use App\Http\Controllers\App\Portfolio\Blog\UpsertBlogController;
+use App\Http\Controllers\App\Core\Integrations\GoogleMailIntegrationController;
+use App\Http\Controllers\App\Core\Integrations\IntegrationsController;
+use App\Http\Controllers\App\Core\Integrations\DisconnectGoogleMailController;
+use App\Http\Controllers\App\Core\Integrations\GoogleDriveIntegrationController;
+use App\Http\Controllers\App\Core\Integrations\DisconnectGoogleDriveController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -46,6 +51,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/portfolio/blogs/handle', [UpsertBlogController::class, 'handle'])->name('portfolio.blogs.handle');
     Route::patch('/portfolio/blogs/{blog}', [UpsertBlogController::class, 'handle'])->name('portfolio.blogs.update');
     Route::delete('/portfolio/blogs/{blog}', [UpsertBlogController::class, 'destroy'])->name('portfolio.blogs.destroy');
+
+    // Settings routes
+    Route::get('/settings', [IntegrationsController::class, 'show'])->name('settings.integrations.show');
+
+    // Google Integration routes
+    Route::get('/settings/integrations/google-mail/connect', [GoogleMailIntegrationController::class, 'connect'])->name('settings.integrations.google-mail.connect');
+    Route::get('/settings/integrations/google-mail/callback', [GoogleMailIntegrationController::class, 'callback'])->name('settings.integrations.google-mail.callback');
+    Route::delete('/settings/integrations/google-mail/{linkedAccount}', [DisconnectGoogleMailController::class, 'disconnect'])->name('settings.integrations.google-mail.disconnect');
+
+    // Google Drive Integration routes
+    Route::get('/settings/integrations/google-drive/connect', [GoogleDriveIntegrationController::class, 'connect'])->name('settings.integrations.google-drive.connect');
+    Route::get('/settings/integrations/google-drive/callback', [GoogleDriveIntegrationController::class, 'callback'])->name('settings.integrations.google-drive.callback');
+    Route::delete('/settings/integrations/google-drive/{linkedAccount}', [DisconnectGoogleDriveController::class, 'disconnect'])->name('settings.integrations.google-drive.disconnect');
 });
 
 require __DIR__.'/auth.php';

@@ -23,5 +23,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(FileSeeder::class);
+        $this->call(LinkedAccountSeeder::class);
     }
 }

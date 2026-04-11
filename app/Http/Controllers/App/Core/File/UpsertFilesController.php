@@ -45,10 +45,8 @@ class UpsertFilesController extends Controller
             'files.*' => 'file|max:5120', // 5MB max per file
             'description' => 'nullable|string|max:1000',
             'is_public' => 'boolean',
-        ]);
-
-        \Log::info([
-            'validated' => $validated,
+            'storage_type' => 'nullable|in:local,google_drive',
+            'folder_path' => 'nullable|string|max:255',
         ]);
 
         $uploadedFiles = [];
@@ -63,10 +61,12 @@ class UpsertFilesController extends Controller
                 $validated['files'],
                 auth()->user(),
                 $metadata,
-                $validated['is_public'] ?? false
+                $validated['is_public'] ?? false,
+                'google_drive', // Storage type
+                'Florencio(sharedFolder)/portfolio resources' // Optional folder path
             );
 
-            return back()->with('success', count($uploadedFiles) . ' files uploaded successfully.');
+            return back()->with('success', count($uploadedFiles) . ' files uploaded successfully to Google Drive.');
         } catch (\Exception $e) {
             return back()->with('error', 'File upload failed: ' . $e->getMessage());
         }

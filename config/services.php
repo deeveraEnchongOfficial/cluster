@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLOUD_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLOUD_CLIENT_SECRET'),
+        'redirect' => env('APP_URL').'/settings/integrations/google-drive/callback',
+        // 'application_credentials_contents' => base64_decode(env('GOOGLE_CLOUD_APPLICATION_CREDENTIALS_CONTENTS')),
+        'auth_cache_store' => env('GOOGLE_CLOUD_AUTH_CACHE_STORE', 'database'),
+        'location' => env('GOOGLE_CLOUD_PROJECT_LOCATION', 'global'),
+        'project_id' => env('GOOGLE_CLOUD_PROJECT_ID'),
+        'token_expiration_default' => env('GOOGLE_TOKEN_EXPIRATION_DEFAULT', 3600), // 1 hour in seconds
+    ],
+
 ];

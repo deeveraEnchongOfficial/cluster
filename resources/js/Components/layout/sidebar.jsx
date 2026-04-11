@@ -31,6 +31,7 @@ import {
 export function Sidebar({ isOpen, onClose }) {
     const { url, props } = usePage()
     const [portfolioOpen, setPortfolioOpen] = useState(url.startsWith('/portfolio'))
+    const [settingsOpen, setSettingsOpen] = useState(url.startsWith('/settings'))
     const { theme, setTheme } = useTheme()
     const user = props.auth?.user
 
@@ -55,6 +56,10 @@ export function Sidebar({ isOpen, onClose }) {
         { name: 'Skills', href: '/portfolio/skills', icon: Wrench },
         { name: 'Achievements', href: '/portfolio/achievements', icon: Trophy },
         { name: 'Blogs', href: '/portfolio/blogs', icon: BookOpen },
+    ]
+
+    const settingsItems = [
+        { name: 'Integrations', href: '/settings', icon: Settings },
     ]
 
     return (
@@ -193,6 +198,48 @@ export function Sidebar({ isOpen, onClose }) {
 
                         <Separator className="my-4" />
 
+                        <div className="space-y-1">
+                            <button
+                                onClick={() => setSettingsOpen(!settingsOpen)}
+                                className={cn(
+                                    'flex gap-3 items-center px-3 py-2 w-full text-sm font-medium rounded-lg transition-colors',
+                                    'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                                )}
+                            >
+                                <Settings className="w-4 h-4" />
+                                <span className="flex-1 text-left">Settings</span>
+                                {settingsOpen ? (
+                                    <ChevronDown className="w-4 h-4" />
+                                ) : (
+                                    <ChevronRight className="w-4 h-4" />
+                                )}
+                            </button>
+
+                            {settingsOpen && (
+                                <div className="pl-3 ml-4 space-y-1 border-l border-sidebar-border">
+                                    {settingsItems.map((item) => {
+                                        const Icon = item.icon
+                                        const active = isActive(item.href)
+                                        return (
+                                            <Link
+                                                key={item.name}
+                                                href={item.href}
+                                                className={cn(
+                                                    'flex gap-3 items-center px-3 py-2 text-sm rounded-lg transition-colors',
+                                                    active
+                                                        ? 'font-medium bg-sidebar-accent text-sidebar-accent-foreground'
+                                                        : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                                                )}
+                                            >
+                                                <Icon className="w-4 h-4" />
+                                                {item.name}
+                                            </Link>
+                                        )
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
                         <nav className="space-y-1">
                             <Link
                                 href="/profile"
@@ -205,18 +252,6 @@ export function Sidebar({ isOpen, onClose }) {
                             >
                                 <User className="w-4 h-4" />
                                 Edit Profile
-                            </Link>
-                            <Link
-                                href="/settings"
-                                className={cn(
-                                    'flex gap-3 items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                                    isActive('/settings')
-                                        ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                                        : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                                )}
-                            >
-                                <Settings className="w-4 h-4" />
-                                Settings
                             </Link>
                             <Link
                                 href="/logout"

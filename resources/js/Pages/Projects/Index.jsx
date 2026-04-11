@@ -14,7 +14,6 @@ const Index = ({ projects }) => {
       action={
         <Button asChild>
           <Link href={route('projects.create')}>
-            <PlusCircle className="mr-2 h-4 w-4" />
             Create Project
           </Link>
         </Button>
@@ -22,9 +21,9 @@ const Index = ({ projects }) => {
     >
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects.data.map((project) => (
-          <Card key={project.id} className="hover:shadow-lg transition-shadow">
+          <Card key={project.id} className="transition-shadow hover:shadow-lg">
             <CardHeader>
-              <div className="flex items-start justify-between">
+              <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <CardTitle className="text-lg">{project.name}</CardTitle>
                   <CardDescription className="mt-1.5">{project.description}</CardDescription>
@@ -55,16 +54,16 @@ const Index = ({ projects }) => {
                   </span>
                 </div>
               </div>
-              <div className="mt-6 flex gap-2">
+              <div className="flex gap-2 mt-6">
                 <Button variant="outline" size="sm" asChild className="flex-1">
                   <Link href={route('projects.show', project.id)}>
-                    <Eye className="mr-2 h-4 w-4" />
+                    <Eye className="mr-2 w-4 h-4" />
                     View
                   </Link>
                 </Button>
                 <Button variant="outline" size="sm" asChild className="flex-1">
                   <Link href={route('projects.edit', project.id)}>
-                    <Edit className="mr-2 h-4 w-4" />
+                    <Edit className="mr-2 w-4 h-4" />
                     Edit
                   </Link>
                 </Button>
@@ -76,15 +75,14 @@ const Index = ({ projects }) => {
 
       {projects.data.length === 0 && (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="rounded-full bg-muted p-3 mb-4">
-              <PlusCircle className="h-6 w-6 text-muted-foreground" />
+          <CardContent className="flex flex-col justify-center items-center py-16">
+            <div className="p-3 mb-4 rounded-full bg-muted">
+              <PlusCircle className="w-6 h-6 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
-            <p className="text-muted-foreground mb-4">Get started by creating your first project.</p>
+            <h3 className="mb-2 text-lg font-semibold">No projects yet</h3>
+            <p className="mb-4 text-muted-foreground">Get started by creating your first project.</p>
             <Button asChild>
               <Link href={route('projects.create')}>
-                <PlusCircle className="mr-2 h-4 w-4" />
                 Create Project
               </Link>
             </Button>
@@ -93,7 +91,7 @@ const Index = ({ projects }) => {
       )}
 
       {projects.links && projects.links.length > 3 && (
-        <div className="mt-6 flex justify-center">
+        <div className="flex justify-center mt-6">
           <div className="flex gap-1">
             {projects.links.map((link, index) => (
               <Button
