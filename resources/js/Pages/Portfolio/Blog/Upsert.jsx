@@ -19,7 +19,7 @@ export default function Upsert({ blog }) {
         title: blog?.title || '',
         category: blog?.category || [],
         excerpt: blog?.excerpt || '',
-        content: blog?.metadata?.content || '',
+        content: blog?.__metadata?.content || '',
         tags: blog?.tags || [],
         readTime: blog?.readTime || '1 min read',
         order: blog?.order || 0,
@@ -84,7 +84,6 @@ export default function Upsert({ blog }) {
                 <div className="flex gap-2">
                     <Button variant="outline" asChild>
                         <Link href={route('portfolio.blogs.browse')}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
                             Cancel
                         </Link>
                     </Button>
@@ -97,9 +96,8 @@ export default function Upsert({ blog }) {
                 </div>
             }
         >
-            <div className="max-w-4xl mx-auto">
+            <div className="w-full">
                 <Card>
-
                     {!isPreview ? (
                         <CardContent className="pt-6">
                             <form onSubmit={handleSubmit} className="space-y-6">
@@ -117,7 +115,7 @@ export default function Upsert({ blog }) {
                                 />
                                 {errors.title && (
                                     <Alert variant="destructive" className="mt-2">
-                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertCircle className="w-4 h-4" />
                                         <AlertDescription>{errors.title}</AlertDescription>
                                     </Alert>
                                 )}
@@ -136,33 +134,33 @@ export default function Upsert({ blog }) {
                                     />
                                 </div>
                                 {errors.excerpt && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.excerpt}</p>
+                                    <p className="mt-1 text-sm text-destructive">{errors.excerpt}</p>
                                 )}
                             </div>
 
                             {/* Content */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block mb-2 text-sm font-medium">
                                     Content
                                 </label>
                                 <textarea
                                     value={data.content}
                                     onChange={(e) => setData('content', e.target.value)}
                                     rows={12}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="px-3 py-2 w-full rounded-lg border border-input bg-background focus:ring-2 focus:ring-ring focus:border-ring"
                                     placeholder="Write your blog content here..."
                                     required
                                 />
                                 {errors.content && (
-                                    <p className="mt-1 text-sm text-red-600">{errors.content}</p>
+                                    <p className="mt-1 text-sm text-destructive">{errors.content}</p>
                                 )}
                             </div>
 
                             {/* Categories and Tags Row */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 {/* Categories */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block mb-2 text-sm font-medium">
                                         Categories
                                     </label>
                                     <div className="space-y-2">
@@ -170,13 +168,13 @@ export default function Upsert({ blog }) {
                                             {data.category.map((cat, index) => (
                                                 <span
                                                     key={index}
-                                                    className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                                                    className="inline-flex items-center px-2 py-1 text-xs text-blue-800 bg-blue-100 rounded dark:bg-blue-900 dark:text-blue-200"
                                                 >
                                                     {cat}
                                                     <button
                                                         type="button"
                                                         onClick={() => removeCategory(cat)}
-                                                        className="ml-1 text-blue-600 hover:text-blue-800"
+                                                        className="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                                                     >
                                                         ×
                                                     </button>
@@ -191,7 +189,7 @@ export default function Upsert({ blog }) {
                                                         key={index}
                                                         type="button"
                                                         onClick={() => addCategory(cat)}
-                                                        className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200"
+                                                        className="px-2 py-1 text-xs rounded bg-secondary text-secondary-foreground hover:bg-secondary/80"
                                                     >
                                                         + {cat}
                                                     </button>
@@ -202,7 +200,7 @@ export default function Upsert({ blog }) {
 
                                 {/* Tags */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block mb-2 text-sm font-medium">
                                         Tags
                                     </label>
                                     <div className="space-y-2">
@@ -210,13 +208,13 @@ export default function Upsert({ blog }) {
                                             {data.tags.map((tag, index) => (
                                                 <span
                                                     key={index}
-                                                    className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs rounded"
+                                                    className="inline-flex items-center px-2 py-1 text-xs text-green-800 bg-green-100 rounded dark:bg-green-900 dark:text-green-200"
                                                 >
                                                     {tag}
                                                     <button
                                                         type="button"
                                                         onClick={() => removeTag(tag)}
-                                                        className="ml-1 text-green-600 hover:text-green-800"
+                                                        className="ml-1 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300"
                                                     >
                                                         ×
                                                     </button>
@@ -226,7 +224,7 @@ export default function Upsert({ blog }) {
                                         <input
                                             type="text"
                                             onKeyPress={handleAddTag}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            className="px-3 py-2 w-full rounded-lg border border-input bg-background focus:ring-2 focus:ring-ring focus:border-ring"
                                             placeholder="Add tags and press Enter..."
                                         />
                                     </div>
@@ -234,28 +232,28 @@ export default function Upsert({ blog }) {
                             </div>
 
                             {/* Additional Settings */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block mb-2 text-sm font-medium">
                                         Read Time
                                     </label>
                                     <input
                                         type="text"
                                         value={data.readTime}
                                         onChange={(e) => setData('readTime', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="px-3 py-2 w-full rounded-lg border border-input bg-background focus:ring-2 focus:ring-ring focus:border-ring"
                                         placeholder="e.g., 5 min read"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block mb-2 text-sm font-medium">
                                         Order
                                     </label>
                                     <input
                                         type="number"
                                         value={data.order}
                                         onChange={(e) => setData('order', parseInt(e.target.value) || 0)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="px-3 py-2 w-full rounded-lg border border-input bg-background focus:ring-2 focus:ring-ring focus:border-ring"
                                         placeholder="0"
                                     />
                                 </div>
@@ -265,26 +263,26 @@ export default function Upsert({ blog }) {
                                         id="is_published"
                                         checked={data.is_published}
                                         onChange={(e) => setData('is_published', e.target.checked)}
-                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        className="rounded text-primary border-input focus:ring-ring"
                                     />
-                                    <label htmlFor="is_published" className="ml-2 text-sm text-gray-700">
+                                    <label htmlFor="is_published" className="ml-2 text-sm">
                                         Published
                                     </label>
                                 </div>
                             </div>
 
                             {/* Actions */}
-                            <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                            <div className="flex justify-end pt-6 space-x-3 border-t">
                                 <Link
                                     href={route('portfolio.blogs.browse')}
-                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                                    className="px-4 py-2 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80"
                                 >
                                     Cancel
                                 </Link>
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                                    className="px-4 py-2 rounded-lg text-primary-foreground bg-primary hover:bg-primary/90 disabled:opacity-50"
                                 >
                                     {processing ? 'Saving...' : (blog?.id ? 'Update' : 'Create')}
                                 </button>
@@ -293,12 +291,12 @@ export default function Upsert({ blog }) {
                         </CardContent>
                     ) : (
                         <CardContent className="pt-6">
-                            <h1 className="text-2xl font-bold mb-4">{data.title}</h1>
+                            <h1 className="mb-4 text-2xl font-bold">{data.title}</h1>
                             {data.excerpt && (
-                                <p className="text-muted-foreground mb-4">{data.excerpt}</p>
+                                <p className="mb-4 text-muted-foreground">{data.excerpt}</p>
                             )}
                             <Separator className="my-4" />
-                            <div className="prose max-w-none">
+                            <div className="max-w-none prose">
                                 <div className="whitespace-pre-wrap">{data.content}</div>
                             </div>
                         </CardContent>

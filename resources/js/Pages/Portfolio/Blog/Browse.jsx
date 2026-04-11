@@ -1,13 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Link, router } from '@inertiajs/react';
 import { DataTable } from '@/Components/data-table/data-table';
-import { DataTableToolbar } from '@/Components/data-table/data-table-toolbar';
 import { createSelectColumn, createSortableHeader } from '@/Components/data-table/columns';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
-import { Card, CardContent } from '@/Components/ui/card';
-import { PlusCircle, Trash2, MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -132,9 +130,9 @@ export default function Browse({ blogs, filters }) {
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
+                            <Button variant="ghost" className="p-0 w-8 h-8">
                                 <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
+                                <MoreHorizontal className="w-4 h-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -170,7 +168,6 @@ export default function Browse({ blogs, filters }) {
             action={
                 <Button asChild>
                     <Link href={route('portfolio.blogs.create')}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
                         Create Blog Post
                     </Link>
                 </Button>
