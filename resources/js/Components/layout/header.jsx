@@ -17,12 +17,14 @@ export function Header({ onMenuClick }) {
     const { auth } = usePage().props
     const { theme, setTheme } = useTheme()
 
-    const user = auth?.user || { name: 'John Doe', email: 'john@example.com' }
-    const initials = user.name
+    const user = auth?.user || { name: 'User', email: 'user@example.com' }
+    const displayName = user.name || user.email.split('@')[0] || 'User'
+    const initials = displayName
         .split(' ')
         .map((n) => n[0])
         .join('')
         .toUpperCase()
+        .slice(0, 2)
 
     return (
         <header className="flex sticky top-0 z-30 gap-4 items-center px-6 h-16 border-b bg-background">
@@ -62,7 +64,7 @@ export function Header({ onMenuClick }) {
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative w-10 h-10 rounded-full">
                             <Avatar className="w-10 h-10">
-                                <AvatarImage src={user.avatar} alt={user.name} />
+                                <AvatarImage src={user.avatar} alt={displayName} />
                                 <AvatarFallback className="bg-primary text-primary-foreground">
                                     {initials}
                                 </AvatarFallback>
@@ -72,7 +74,7 @@ export function Header({ onMenuClick }) {
                     <DropdownMenuContent className="w-56" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">{user.name}</p>
+                                <p className="text-sm font-medium leading-none">{displayName}</p>
                                 <p className="text-xs leading-none text-muted-foreground">
                                     {user.email}
                                 </p>

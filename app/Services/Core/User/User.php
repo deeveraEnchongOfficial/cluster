@@ -35,11 +35,8 @@ class User extends Authenticatable
     public function name(): Attribute
     {
         return Attribute::make(
-            get: fn () => implode(' ', array_filter([
-                $this->first_name,
-                $this->middle_name,
-                $this->last_name,
-            ])),
+            get: fn ($value) => $value,
+            set: fn ($value) => $value,
         );
     }
 
