@@ -57,4 +57,12 @@ class LinkedAccountRepository
             ->where('user_id', $user->id)
             ->first();
     }
+
+    public function hasGoogleDrive(User $user): bool
+    {
+        return LinkedAccount::where('user_id', $user->id)
+            ->where('provider', LinkedAccountProvider::GOOGLE)
+            ->where('features', 'all', [LinkedAccountFeature::DRIVE->value])
+            ->exists();
+    }
 }

@@ -7,14 +7,14 @@ import { Badge } from '@/Components/ui/badge';
 import { Input } from '@/Components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Checkbox } from '@/Components/ui/checkbox';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/Components/ui/dialog';
 import {
-  Upload, Download, Eye, Trash2, FileImage, FileVideo, FileAudio,
-  FileText, FileSpreadsheet, File, Archive, Globe, Lock, RefreshCw
+    Upload, Download, Eye, Trash2, FileImage, FileVideo, FileAudio,
+    FileText, FileSpreadsheet, File, Archive, Globe, Lock, RefreshCw
 } from 'lucide-react';
 import UploadModal from '@/Components/UploadModal';
 
-export default function Browse({ files, filters }) {
+export default function Browse({ files, filters, hasGoogleDrive }) {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [showBulkActions, setShowBulkActions] = useState(false);
@@ -22,6 +22,8 @@ export default function Browse({ files, filters }) {
     const [showImageModal, setShowImageModal] = useState(false);
     const [currentImage, setCurrentImage] = useState(null);
     const [imageLoading, setImageLoading] = useState(false);
+    const [showResyncDialog, setShowResyncDialog] = useState(false);
+    const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
 
     const handleFileSelect = (fileId) => {
         setSelectedFiles(prev => {
@@ -45,34 +47,33 @@ export default function Browse({ files, filters }) {
 
     const handleBulkDelete = () => {
         if (selectedFiles.length === 0) return;
+        setShowBulkDeleteDialog(true);
+    };
 
-        if (confirm(`Are you sure you want to delete ${selectedFiles.length} file${selectedFiles.length > 1 ? 's' : ''}?`)) {
-            router.post(route('files.bulk-delete'), { file_ids: selectedFiles }, {
-                onSuccess: () => {
-                    setSelectedFiles([]);
-                    setShowBulkActions(false);
-                }
-            });
-        }
+    const confirmBulkDelete = () => {
+        router.post(route('files.bulk-delete'), { file_ids: selectedFiles }, {
+            onSuccess: () => {
+                setSelectedFiles([]);
+                setShowBulkActions(false);
+                setShowBulkDeleteDialog(false);
+            }
+        });
     };
 
     const handleResyncFromDrive = () => {
-        if (!confirm('This will scan Google Drive and add any missing files to the system. Continue?')) {
-            return;
-        }
+        setShowResyncDialog(true);
+    };
 
+    const confirmResyncFromDrive = () => {
         setIsResyncing(true);
+        setShowResyncDialog(false);
 
         router.post(route('files.resync-drive'), {}, {
-            onSuccess: (page) => {
-                // Show success message and refresh the page
-                const syncedCount = page.props.synced_count || 0;
-                alert(`Successfully synced ${syncedCount} files from Google Drive.`);
+            onSuccess: () => {
                 router.reload();
             },
             onError: (errors) => {
                 console.error('Resync errors:', errors);
-                alert('Failed to sync files from Google Drive. Please try again.');
             },
             onFinish: () => {
                 setIsResyncing(false);
@@ -145,24 +146,28 @@ export default function Browse({ files, filters }) {
                 { label: 'Files', href: '/files' },
             ]}
             action={
-                <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={() => handleResyncFromDrive()}
-                        disabled={isResyncing}
-                    >
-                        {isResyncing ? (
-                            <RefreshCw className="mr-2 w-4 h-4 animate-spin" />
-                        ) : (
-                            <RefreshCw className="mr-2 w-4 h-4" />
-                        )}
-                        {isResyncing ? 'Syncing...' : 'Resync from Drive'}
-                    </Button>
-                    <Button onClick={() => setShowUploadModal(true)}>
-                        <Upload className="mr-2 w-4 h-4" />
-                        Upload Files
-                    </Button>
-                </div>
+                hasGoogleDrive ? (
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => handleResyncFromDrive()}
+                            disabled={isResyncing}
+                        >
+                            {isResyncing ? (
+                                <RefreshCw className="mr-2 w-4 h-4 animate-spin" />
+                            ) : (
+                                <RefreshCw className="mr-2 w-4 h-4" />
+                            )}
+                            {isResyncing ? 'Syncing...' : 'Resync from Drive'}
+                        </Button>
+                        <Button onClick={() => setShowUploadModal(true)}>
+                            <Upload className="mr-2 w-4 h-4" />
+                            Upload Files
+                        </Button>
+                    </div>
+                ) : (
+                    <></>
+                )
             }
         >
             <div className="space-y-4">
@@ -321,11 +326,30 @@ export default function Browse({ files, filters }) {
                                     <File className="w-10 h-10 text-muted-foreground" />
                                 </div>
                                 <h3 className="mb-2 text-lg font-semibold">No files found</h3>
-                                <p className="mb-4 text-muted-foreground">Get started by uploading your first file.</p>
-                                <Button onClick={() => setShowUploadModal(true)}>
-                                    <Upload className="mr-2 w-4 h-4" />
-                                    Upload Files
-                                </Button>
+                                <p className="mb-6 text-muted-foreground">Get started by connecting your Gmail account and uploading files.</p>
+
+                                <div className="flex gap-4 items-center">
+                                    {hasGoogleDrive ? (
+                                        <Button onClick={() => setShowUploadModal(true)}>
+                                            <Upload className="mr-2 w-4 h-4" />
+                                            Upload Files
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => window.location.href = '/settings/integrations/google-drive/connect'}
+                                            className="gap-2"
+                                        >
+                                            <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                            </svg>
+                                            Connect Google Drive
+                                        </Button>
+                                    )}
+                                </div>
                             </CardContent>
                         </Card>
                     )}
@@ -365,7 +389,7 @@ export default function Browse({ files, filters }) {
                     router.reload();
                 }}
             />
-        {/* Image Modal */}
+            {/* Image Modal */}
             <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
                 <DialogContent className="max-w-4xl max-h-[90vh]">
                     <DialogHeader>
@@ -402,6 +426,57 @@ export default function Browse({ files, filters }) {
                             </div>
                         )}
                     </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Resync Confirmation Dialog */}
+            <Dialog open={showResyncDialog} onOpenChange={setShowResyncDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Resync from Google Drive</DialogTitle>
+                        <DialogDescription>
+                            This will scan Google Drive and add any missing files to the system. Continue?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowResyncDialog(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={confirmResyncFromDrive} disabled={isResyncing}>
+                            {isResyncing ? (
+                                <>
+                                    <RefreshCw className="mr-2 w-4 h-4 animate-spin" />
+                                    Syncing...
+                                </>
+                            ) : (
+                                <>
+                                    <RefreshCw className="mr-2 w-4 h-4" />
+                                    Continue
+                                </>
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Bulk Delete Confirmation Dialog */}
+            <Dialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Files</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''}? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowBulkDeleteDialog(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmBulkDelete}>
+                            <Trash2 className="mr-2 w-4 h-4" />
+                            Delete {selectedFiles.length} File{selectedFiles.length > 1 ? 's' : ''}
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </AdminLayout>

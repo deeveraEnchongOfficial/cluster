@@ -103,7 +103,6 @@ class TestLinkedAccount extends Command
                     $this->info("   The Settings page should still work with empty data.");
                 }
             }
-
         } catch (\Exception $e) {
             $this->error("Error: {$e->getMessage()}");
             $this->error("File: {$e->getFile()}:{$e->getLine()}");

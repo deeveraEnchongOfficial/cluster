@@ -7,11 +7,13 @@ use App\Services\Core\File\File;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Http\Controllers\Controller;
+use App\Services\Core\LinkedAccount\LinkedAccountRepository;
 
 class BrowseFilesController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private readonly LinkedAccountRepository $linkedAccounts,
+    ) {
         $this->middleware('auth');
     }
 
@@ -26,8 +28,8 @@ class BrowseFilesController extends Controller
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('original_name', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
+                    ->orWhere('original_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('description', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -44,6 +46,7 @@ class BrowseFilesController extends Controller
         return Inertia::render('Files/Browse', [
             'files' => $files,
             'filters' => $request->only(['search', 'type', 'is_public']),
+            'hasGoogleDrive' => $this->linkedAccounts->hasGoogleDrive($request->user()),
         ]);
     }
 }

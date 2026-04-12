@@ -32,7 +32,7 @@ class GoogleMailIntegrationController extends Controller
 
     public function connect(Request $request)
     {
-        session()->put(static::class.':payload', $request->query());
+        session()->put(static::class . ':payload', $request->query());
 
         return Socialite::driver('google')
             ->scopes(self::MAIL_SCOPES)
@@ -46,7 +46,7 @@ class GoogleMailIntegrationController extends Controller
 
     public function callback(Request $request): RedirectResponse
     {
-        $payload = session()->pull(static::class.':payload') ?? [];
+        $payload = session()->pull(static::class . ':payload') ?? [];
         $returnUrl = $request->query('returnUrl') ?? Arr::get($payload, 'returnUrl', route('settings.integrations.show', absolute: false));
 
         /** @var \Laravel\Socialite\Two\User $user */

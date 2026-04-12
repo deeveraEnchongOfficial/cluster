@@ -72,7 +72,7 @@ class UpsertFilesController extends Controller
                 'Florencio(sharedFolder)/portfolio resources' // Optional folder path
             );
 
-            return back()->with('success', count($uploadedFiles) . ' files uploaded successfully to Google Drive.');
+            return back()->withToastSuccess(count($uploadedFiles) . ' files uploaded successfully to Google Drive.');
         } catch (\Exception $e) {
             return back()->with('error', 'File upload failed: ' . $e->getMessage());
         }
@@ -101,7 +101,7 @@ class UpsertFilesController extends Controller
             'is_public' => $validated['is_public'] ?? $file->is_public,
         ]);
 
-        return back()->with('success', 'File updated successfully.');
+        return back()->withToastSuccess('File updated successfully.');
     }
 
     /**
@@ -115,7 +115,7 @@ class UpsertFilesController extends Controller
         $file->delete();
 
         return redirect()->route('files.browse')
-            ->with('success', 'File deleted successfully.');
+            ->withToastSuccess('File deleted successfully.');
     }
 
     /**
@@ -135,7 +135,6 @@ class UpsertFilesController extends Controller
     {
         $request->validate([
             'file_ids' => 'required|array',
-            'file_ids.*' => 'exists:files,id',
         ]);
 
         $files = File::whereIn('id', $request->file_ids)
@@ -143,11 +142,11 @@ class UpsertFilesController extends Controller
             ->get();
 
         foreach ($files as $file) {
-            Storage::disk($file->disk)->delete($file->path);
+            // Storage::disk($file->disk)->delete($file->path);
             $file->delete();
         }
 
-        return back()->with('success', 'Files deleted successfully.');
+        return back()->withToastSuccess("Successfully deleted {$files->count()} files.");
     }
 
     /**
@@ -207,9 +206,7 @@ class UpsertFilesController extends Controller
                 $syncedCount++;
             }
 
-            return back()->with('success', "Successfully synced {$syncedCount} files from Google Drive.")
-                ->with('synced_count', $syncedCount);
-
+            return redirect()->route('files.browse')->withToastSuccess("Successfully synced {$syncedCount} files from Google Drive.");
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to sync files from Google Drive: ' . $e->getMessage());
         }

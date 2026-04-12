@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react'
 import { AppShell } from '@/Components/layout/app-shell'
 import { PageHeader } from '@/Components/layout/page-header'
+import Toasty from '@/Components/toasty'
 
 export default function AdminLayout({ children, title, description, action, breadcrumbs }) {
     return (
@@ -17,6 +18,7 @@ export default function AdminLayout({ children, title, description, action, brea
                 )}
                 {children}
             </AppShell>
+            <Toasty />
         </>
     )
 }

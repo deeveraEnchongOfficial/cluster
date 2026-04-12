@@ -6,6 +6,8 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { ThemeProvider } from '@/Components/theme-provider';
 import { TooltipProvider } from '@/Components/ui/tooltip';
+import { Toaster } from './components/shadcn/ui/sonner.jsx'
+import Toasty from './Components/toasty.jsx'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -22,6 +24,7 @@ createInertiaApp({
         root.render(
             <ThemeProvider defaultTheme="light" storageKey="cluster-theme">
                 <TooltipProvider>
+                    <Toaster />
                     <App {...props} />
                 </TooltipProvider>
             </ThemeProvider>

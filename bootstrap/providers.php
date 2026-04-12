@@ -7,4 +7,5 @@ return [
     AppServiceProvider::class,
     AuthServiceProvider::class,
     App\Services\Core\CoreServiceProvider::class,
+    App\Support\SupportServiceProvider::class,
 ];

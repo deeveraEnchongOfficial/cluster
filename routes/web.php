@@ -67,4 +67,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/settings/integrations/google-drive/{linkedAccount}', [DisconnectGoogleDriveController::class, 'disconnect'])->name('settings.integrations.google-drive.disconnect');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
