@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Link } from '@inertiajs/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
-import { Alert, AlertDescription } from '@/Components/ui/alert';
+import { Input } from '@/Components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import { Separator } from '@/Components/ui/separator';
 import {
   Mail,
   Calendar,
@@ -12,10 +14,17 @@ import {
   AlertCircle,
   Clock,
   RefreshCw,
-  HardDrive
+  HardDrive,
+  SlidersHorizontal,
+  ArrowUpAZ,
+  ArrowDownAZ
 } from 'lucide-react';
 
 const IntegrationsShow = ({ linkedAccounts }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [sort, setSort] = useState('asc');
+
   const hasGoogleMail = linkedAccounts.some(account =>
     account.provider === 'google' &&
     account.features.some(feature => feature.value === 'email')
@@ -39,6 +48,76 @@ const IntegrationsShow = ({ linkedAccounts }) => {
       account.features.some(feature => feature.value === 'drive')
     );
   };
+
+  // Define all integrations
+  const integrations = [
+    {
+      id: 'google-mail',
+      name: 'Google Mail',
+      description: 'Connect your Gmail account to send and receive emails',
+      icon: <Mail className="w-5 h-5" />,
+      iconBg: 'bg-red-100 dark:bg-red-950',
+      iconColor: 'text-red-600 dark:text-red-400',
+      connected: hasGoogleMail,
+      account: hasGoogleMail ? getGoogleMailAccount() : null,
+      connectRoute: 'settings.integrations.google-mail.connect',
+      disconnectRoute: 'settings.integrations.google-mail.disconnect',
+      features: hasGoogleMail ? getGoogleMailAccount().features : [
+        { label: 'Read Emails', value: 'read' },
+        { label: 'Send Emails', value: 'send' },
+        { label: 'Compose', value: 'compose' }
+      ]
+    },
+    {
+      id: 'google-drive',
+      name: 'Google Drive',
+      description: 'Connect your Google Drive to access and manage files',
+      icon: <HardDrive className="w-5 h-5" />,
+      iconBg: 'bg-green-100 dark:bg-green-950',
+      iconColor: 'text-green-600 dark:text-green-400',
+      connected: hasGoogleDrive,
+      account: hasGoogleDrive ? getGoogleDriveAccount() : null,
+      connectRoute: 'settings.integrations.google-drive.connect',
+      disconnectRoute: 'settings.integrations.google-drive.disconnect',
+      features: hasGoogleDrive ? getGoogleDriveAccount().features : [
+        { label: 'Read Files', value: 'read' },
+        { label: 'Manage Files', value: 'manage' },
+        { label: 'Upload Files', value: 'upload' }
+      ]
+    },
+    {
+      id: 'google-calendar',
+      name: 'Google Calendar',
+      description: 'Sync your calendar events (Coming Soon)',
+      icon: <Calendar className="w-5 h-5" />,
+      iconBg: 'bg-blue-100 dark:bg-blue-950',
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      connected: false,
+      account: null,
+      disabled: true,
+      features: [
+        { label: 'Sync Events', value: 'sync' },
+        { label: 'Create Events', value: 'create' },
+        { label: 'Manage Schedule', value: 'manage' }
+      ]
+    }
+  ];
+
+  // Filter and sort integrations
+  const filteredIntegrations = integrations
+    .filter(integration => {
+      const matchesSearch = integration.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFilter =
+        filterType === 'all' ? true :
+        filterType === 'connected' ? integration.connected :
+        filterType === 'notConnected' ? !integration.connected : true;
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) =>
+      sort === 'asc'
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name)
+    );
 
   const getStatusBadge = (account) => {
     if (account.is_expired) {
@@ -82,225 +161,135 @@ const IntegrationsShow = ({ linkedAccounts }) => {
 
   return (
     <AdminLayout
-      title="Integrations"
-      description="Connect external services to enhance your experience."
+      title="App Integrations"
+      description="Here's a list of your apps for the integration!"
       breadcrumbs={[
+        { label: 'Dashboard', href: '/dashboard' },
         { label: 'Settings', href: route('settings.integrations.show') },
         { label: 'Integrations', href: route('settings.integrations.show') }
       ]}
     >
-      <div className="space-y-6">
+      <div className="space-y-4">
+        {/* Search and Filters */}
+        <div className="flex flex-col gap-4 justify-between items-start sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <Input
+              placeholder="Filter integrations..."
+              className="h-9 w-40 lg:w-[250px]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Apps</SelectItem>
+                <SelectItem value="connected">Connected</SelectItem>
+                <SelectItem value="notConnected">Not Connected</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        {/* Google Mail Integration */}
-        <Card>
-          <CardHeader>
-            <div className="flex gap-3 items-center">
-              <div className="flex justify-center items-center w-10 h-10 bg-red-100 rounded-lg">
-                <Mail className="w-5 h-5 text-red-600" />
-              </div>
-              <div>
-                <CardTitle>Google Mail</CardTitle>
-                <CardDescription>
-                  Connect your Gmail account to send and receive emails
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {hasGoogleMail ? (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <div className="space-y-2">
-                    <div className="flex gap-2 items-center">
-                      <span className="font-medium">
-                        {getGoogleMailAccount().metadata?.email || 'Connected Account'}
-                      </span>
-                      {getStatusBadge(getGoogleMailAccount())}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Connected on {new Date(getGoogleMailAccount().created_at).toLocaleDateString()}
-                    </div>
+          <Select value={sort} onValueChange={setSort}>
+            <SelectTrigger className="w-16">
+              <SelectValue>
+                <SlidersHorizontal size={18} />
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent align="end">
+              <SelectItem value="asc">
+                <div className="flex gap-4 items-center">
+                  <ArrowUpAZ size={16} />
+                  <span>Ascending</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="desc">
+                <div className="flex gap-4 items-center">
+                  <ArrowDownAZ size={16} />
+                  <span>Descending</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Separator className="shadow-sm" />
+
+        {/* Integrations Grid */}
+        <ul className="grid gap-4 pt-4 pb-16 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredIntegrations.map((integration) => (
+            <li
+              key={integration.id}
+              className="rounded-lg border p-4 hover:shadow-md transition-shadow"
+            >
+              <div className="mb-8 flex items-center justify-between">
+                <div className={`flex size-10 items-center justify-center rounded-lg ${integration.iconBg} p-2`}>
+                  <div className={integration.iconColor}>
+                    {integration.icon}
                   </div>
-
-                  <div className="flex gap-2 items-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`${
+                    integration.connected
+                      ? 'border border-blue-300 bg-blue-50 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:hover:bg-blue-900'
+                      : ''
+                  }`}
+                  disabled={integration.disabled}
+                  asChild={!integration.disabled && !integration.connected}
+                >
+                  {integration.disabled ? (
+                    <span>Coming Soon</span>
+                  ) : integration.connected ? (
+                    <Link
+                      href={route(integration.disconnectRoute, integration.account.id)}
+                      method="delete"
+                      as="button"
                     >
-                      <a href={route('settings.integrations.google-mail.connect')}>
-                        Refresh
-                      </a>
-                    </Button>
-
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      asChild
-                    >
-                      <Link
-                        href={route('settings.integrations.google-mail.disconnect', getGoogleMailAccount().id)}
-                        method="delete"
-                        as="button"
-                      >
-                        Disconnect
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-
-                {getExpirationInfo(getGoogleMailAccount())}
-
-                <div className="flex flex-wrap gap-2">
-                  {getGoogleMailAccount().features.map((feature) => (
-                    <Badge key={feature.value} variant="secondary">
-                      {feature.label}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="mb-2 text-sm text-muted-foreground">
-                    Connect your Google account to enable email functionality
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline">Read Emails</Badge>
-                    <Badge variant="outline">Send Emails</Badge>
-                    <Badge variant="outline">Compose</Badge>
-                  </div>
-                </div>
-
-                <Button asChild>
-                  <a href={route('settings.integrations.google-mail.connect')}>
-                    Connect Google Mail
-                  </a>
+                      Disconnect
+                    </Link>
+                  ) : (
+                    <a href={route(integration.connectRoute)}>
+                      Connect
+                    </a>
+                  )}
                 </Button>
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Google Drive Integration */}
-        <Card>
-          <CardHeader>
-            <div className="flex gap-3 items-center">
-              <div className="flex justify-center items-center w-10 h-10 bg-green-100 rounded-lg">
-                <HardDrive className="w-5 h-5 text-green-600" />
-              </div>
               <div>
-                <CardTitle>Google Drive</CardTitle>
-                <CardDescription>
-                  Connect your Google Drive to access and manage files
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {hasGoogleDrive ? (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <div className="space-y-2">
-                    <div className="flex gap-2 items-center">
-                      <span className="font-medium">
-                        {getGoogleDriveAccount().metadata?.email || 'Connected Account'}
-                      </span>
-                      {getStatusBadge(getGoogleDriveAccount())}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Connected on {new Date(getGoogleDriveAccount().created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2 items-center">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                    >
-                      <a href={route('settings.integrations.google-drive.connect')}>
-                        Refresh
-                      </a>
-                    </Button>
-
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      asChild
-                    >
-                      <Link
-                        href={route('settings.integrations.google-drive.disconnect', getGoogleDriveAccount().id)}
-                        method="delete"
-                        as="button"
-                      >
-                        Disconnect
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-
-                {getExpirationInfo(getGoogleDriveAccount())}
-
-                <div className="flex flex-wrap gap-2">
-                  {getGoogleDriveAccount().features.map((feature) => (
-                    <Badge key={feature.value} variant="secondary">
-                      {feature.label}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="mb-2 text-sm text-muted-foreground">
-                    Connect your Google Drive to access files and documents
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline">Read Files</Badge>
-                    <Badge variant="outline">Manage Files</Badge>
-                    <Badge variant="outline">Upload Files</Badge>
-                  </div>
-                </div>
-
-                <Button asChild>
-                  <a href={route('settings.integrations.google-drive.connect')}>
-                    Connect Google Drive
-                  </a>
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Future Integrations Placeholder */}
-        <Card>
-          <CardHeader>
-            <div className="flex gap-3 items-center">
-              <div className="flex justify-center items-center w-10 h-10 bg-blue-100 rounded-lg">
-                <Calendar className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <CardTitle>Google Calendar</CardTitle>
-                <CardDescription>
-                  Sync your calendar events (Coming Soon)
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Connect your Google Calendar to sync events and manage your schedule
+                <h2 className="mb-1 font-semibold">{integration.name}</h2>
+                <p className="line-clamp-2 text-muted-foreground text-sm mb-3">
+                  {integration.description}
                 </p>
+                {integration.connected && integration.account && (
+                  <div className="space-y-2 mb-3">
+                    <div className="flex gap-2 items-center">
+                      {getStatusBadge(integration.account)}
+                    </div>
+                    {integration.account.metadata?.email && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        {integration.account.metadata.email}
+                      </p>
+                    )}
+                  </div>
+                )}
+                <div className="flex flex-wrap gap-1">
+                  {integration.features.slice(0, 3).map((feature, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs">
+                      {feature.label}
+                    </Badge>
+                  ))}
+                  {integration.features.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{integration.features.length - 3}
+                    </Badge>
+                  )}
+                </div>
               </div>
-              <Button disabled>
-                Coming Soon
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </li>
+          ))}
+        </ul>
       </div>
     </AdminLayout>
   );

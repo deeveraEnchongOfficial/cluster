@@ -24,5 +24,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call(FileSeeder::class);
         $this->call(LinkedAccountSeeder::class);
+        $this->call(PageSeeder::class);
     }
 }

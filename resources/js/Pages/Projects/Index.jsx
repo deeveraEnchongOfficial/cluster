@@ -11,15 +11,20 @@ const Index = ({ projects }) => {
     <AdminLayout
       title="Projects"
       description="Manage your projects"
+      breadcrumbs={[
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Projects', href: '/projects' },
+      ]}
       action={
         <Button asChild>
           <Link href={route('projects.create')}>
+            <PlusCircle className="mr-2 h-4 w-4" />
             Create Project
           </Link>
         </Button>
       }
     >
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {projects.data.map((project) => (
           <Card key={project.id} className="transition-shadow hover:shadow-lg">
             <CardHeader>

@@ -11,6 +11,8 @@ use App\Http\Controllers\App\Core\Integrations\IntegrationsController;
 use App\Http\Controllers\App\Core\Integrations\DisconnectGoogleMailController;
 use App\Http\Controllers\App\Core\Integrations\GoogleDriveIntegrationController;
 use App\Http\Controllers\App\Core\Integrations\DisconnectGoogleDriveController;
+use App\Http\Controllers\App\Documentation\BrowseDocumentationController;
+use App\Http\Controllers\App\Documentation\UpsertDocumentationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -65,6 +67,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/integrations/google-drive/connect', [GoogleDriveIntegrationController::class, 'connect'])->name('settings.integrations.google-drive.connect');
     Route::get('/settings/integrations/google-drive/callback', [GoogleDriveIntegrationController::class, 'callback'])->name('settings.integrations.google-drive.callback');
     Route::delete('/settings/integrations/google-drive/{linkedAccount}', [DisconnectGoogleDriveController::class, 'disconnect'])->name('settings.integrations.google-drive.disconnect');
+
+    // Documentation routes - Browse and Upsert pattern
+    Route::get('/documentation', [BrowseDocumentationController::class, 'show'])->name('documentation.index');
+    Route::get('/documentation/create', [UpsertDocumentationController::class, 'show'])->name('documentation.create');
+    Route::get('/documentation/{page}', [UpsertDocumentationController::class, 'show'])->name('documentation.upsert');
+    Route::post('/documentation/handle', [UpsertDocumentationController::class, 'handle'])->name('documentation.handle');
+    Route::patch('/documentation/{page}', [UpsertDocumentationController::class, 'handle'])->name('documentation.update');
+    Route::delete('/documentation/{page}', [UpsertDocumentationController::class, 'destroy'])->name('documentation.destroy');
 });
 
 require __DIR__ . '/auth.php';

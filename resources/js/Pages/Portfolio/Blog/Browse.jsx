@@ -5,7 +5,7 @@ import { DataTable } from '@/Components/data-table/data-table';
 import { createSelectColumn, createSortableHeader } from '@/Components/data-table/columns';
 import { Button } from '@/Components/ui/button';
 import { Badge } from '@/Components/ui/badge';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -165,9 +165,14 @@ export default function Browse({ blogs, filters }) {
         <AdminLayout
             title="Blog Posts"
             description="Manage your blog content"
+            breadcrumbs={[
+                { label: 'Dashboard', href: '/dashboard' },
+                { label: 'Blogs', href: '/portfolio/blogs' },
+            ]}
             action={
                 <Button asChild>
                     <Link href={route('portfolio.blogs.create')}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
                         Create Blog Post
                     </Link>
                 </Button>

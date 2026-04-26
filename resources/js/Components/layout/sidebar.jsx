@@ -18,6 +18,8 @@ import {
     Wrench,
     Trophy,
     BookOpen,
+    File,
+    Plus,
     User,
     Settings,
     LogOut,
@@ -32,8 +34,10 @@ export function Sidebar({ isOpen, onClose }) {
     const { url, props } = usePage()
     const [portfolioOpen, setPortfolioOpen] = useState(url.startsWith('/portfolio'))
     const [settingsOpen, setSettingsOpen] = useState(url.startsWith('/settings'))
+    const [documentationOpen, setDocumentationOpen] = useState(url.startsWith('/documentation'))
     const { theme, setTheme } = useTheme()
     const user = props.auth?.user
+    const pages = props.pages || []
 
     const isActive = (href) => {
         if (href === '/dashboard') return url === '/dashboard'
@@ -150,6 +154,75 @@ export function Sidebar({ isOpen, onClose }) {
                                             </Link>
                                         )
                                     })}
+                                </div>
+                            )}
+                        </div>
+
+                        <Separator className="my-4" />
+
+                        <div className="space-y-1">
+                            <button
+                                onClick={() => setDocumentationOpen(!documentationOpen)}
+                                className={cn(
+                                    'flex gap-3 items-center px-3 py-2 w-full text-sm font-medium rounded-lg transition-colors',
+                                    'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                                )}
+                            >
+                                <BookOpen className="w-4 h-4" />
+                                <span className="flex-1 text-left">Documentation</span>
+                                {documentationOpen ? (
+                                    <ChevronDown className="w-4 h-4" />
+                                ) : (
+                                    <ChevronRight className="w-4 h-4" />
+                                )}
+                            </button>
+
+                            {documentationOpen && (
+                                <div className="pl-3 ml-4 space-y-1 border-l border-sidebar-border">
+                                    {pages.length === 0 ? (
+                                        <Link
+                                            href="/documentation/create"
+                                            className={cn(
+                                                'flex gap-3 items-center px-3 py-2 text-sm rounded-lg transition-colors',
+                                                isActive('/documentation/create')
+                                                    ? 'font-medium bg-sidebar-accent text-sidebar-accent-foreground'
+                                                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                                            )}
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                            Create Page
+                                        </Link>
+                                    ) : (
+                                        <>
+                                            <Link
+                                                href="/documentation/create"
+                                                className={cn(
+                                                    'flex gap-3 items-center px-3 py-2 text-sm rounded-lg transition-colors',
+                                                    isActive('/documentation/create')
+                                                        ? 'font-medium bg-sidebar-accent text-sidebar-accent-foreground'
+                                                        : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                                                )}
+                                            >
+                                                <Plus className="w-4 h-4" />
+                                                New Page
+                                            </Link>
+                                            {pages.map((page) => (
+                                                <Link
+                                                    key={page.id}
+                                                    href={`/documentation/${page.id}`}
+                                                    className={cn(
+                                                        'flex gap-3 items-center px-3 py-2 text-sm rounded-lg transition-colors',
+                                                        url === `/documentation/${page.id}`
+                                                            ? 'font-medium bg-sidebar-accent text-sidebar-accent-foreground'
+                                                            : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                                                    )}
+                                                >
+                                                    <File className="w-4 h-4" />
+                                                    <span className="truncate">{page.title || 'Untitled'}</span>
+                                                </Link>
+                                            ))}
+                                        </>
+                                    )}
                                 </div>
                             )}
                         </div>

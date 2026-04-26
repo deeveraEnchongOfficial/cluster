@@ -402,8 +402,8 @@ export default function Browse({ files, filters, hasGoogleDrive }) {
                         {currentImage && (
                             <div className="relative">
                                 {imageLoading && (
-                                    <div className="flex absolute inset-0 justify-center items-center bg-gray-100 rounded-lg">
-                                        <div className="w-12 h-12 rounded-full border-b-2 border-blue-600 animate-spin"></div>
+                                    <div className="flex absolute inset-0 justify-center items-center bg-muted rounded-lg">
+                                        <div className="w-12 h-12 rounded-full border-b-2 border-primary animate-spin"></div>
                                     </div>
                                 )}
                                 <img

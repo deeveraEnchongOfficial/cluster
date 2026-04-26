@@ -7,7 +7,6 @@ use App\Support\Database\Traits\HasMetadata;
 use App\Support\Database\Traits\HasOwner;
 use App\Support\Database\Traits\ServiceModel;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
 class File extends Model
