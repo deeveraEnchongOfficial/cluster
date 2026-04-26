@@ -1,14 +1,17 @@
 <?php
 
-namespace App\Models;
+namespace App\Services\Portfolio\Project;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Support\Database\Traits\ServiceModel;
+use App\Support\Database\Traits\HasCreatedBy;
+use App\Support\Database\Traits\HasMetadata;
+use App\Support\Database\Traits\HasOwner;
 
 class Project extends Model
 {
-    use HasFactory, ServiceModel;
+    use HasFactory, ServiceModel, HasCreatedBy, HasMetadata, HasOwner;
 
     protected $casts = [
         'start_date' => 'date',
@@ -16,8 +19,4 @@ class Project extends Model
         'budget' => 'decimal:2',
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }

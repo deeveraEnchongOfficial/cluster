@@ -35,6 +35,11 @@ const IntegrationsShow = ({ linkedAccounts }) => {
     account.features.some(feature => feature.value === 'drive')
   );
 
+  const hasGoogleCalendar = linkedAccounts.some(account =>
+    account.provider === 'google' &&
+    account.features.some(feature => feature.value === 'calendar')
+  );
+
   const getGoogleMailAccount = () => {
     return linkedAccounts.find(account =>
       account.provider === 'google' &&
@@ -46,6 +51,13 @@ const IntegrationsShow = ({ linkedAccounts }) => {
     return linkedAccounts.find(account =>
       account.provider === 'google' &&
       account.features.some(feature => feature.value === 'drive')
+    );
+  };
+
+  const getGoogleCalendarAccount = () => {
+    return linkedAccounts.find(account =>
+      account.provider === 'google' &&
+      account.features.some(feature => feature.value === 'calendar')
     );
   };
 
@@ -88,14 +100,15 @@ const IntegrationsShow = ({ linkedAccounts }) => {
     {
       id: 'google-calendar',
       name: 'Google Calendar',
-      description: 'Sync your calendar events (Coming Soon)',
+      description: 'Sync your calendar events',
       icon: <Calendar className="w-5 h-5" />,
       iconBg: 'bg-blue-100 dark:bg-blue-950',
       iconColor: 'text-blue-600 dark:text-blue-400',
-      connected: false,
-      account: null,
-      disabled: true,
-      features: [
+      connected: hasGoogleCalendar,
+      account: hasGoogleCalendar ? getGoogleCalendarAccount() : null,
+      connectRoute: 'settings.integrations.google-calendar.connect',
+      disconnectRoute: 'settings.integrations.google-calendar.disconnect',
+      features: hasGoogleCalendar ? getGoogleCalendarAccount().features : [
         { label: 'Sync Events', value: 'sync' },
         { label: 'Create Events', value: 'create' },
         { label: 'Manage Schedule', value: 'manage' }

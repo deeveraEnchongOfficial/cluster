@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\App\Portfolio\Project\BrowseProjectController;
+use App\Http\Controllers\App\Portfolio\Project\UpsertProjectController;
 use App\Http\Controllers\App\Core\File\BrowseFilesController;
 use App\Http\Controllers\App\Core\File\UpsertFilesController;
 use App\Http\Controllers\App\Portfolio\Blog\BrowseBlogController;
@@ -11,8 +12,11 @@ use App\Http\Controllers\App\Core\Integrations\IntegrationsController;
 use App\Http\Controllers\App\Core\Integrations\DisconnectGoogleMailController;
 use App\Http\Controllers\App\Core\Integrations\GoogleDriveIntegrationController;
 use App\Http\Controllers\App\Core\Integrations\DisconnectGoogleDriveController;
+use App\Http\Controllers\App\Core\Integrations\GoogleCalendarIntegrationController;
+use App\Http\Controllers\App\Core\Integrations\DisconnectGoogleCalendarController;
 use App\Http\Controllers\App\Documentation\BrowseDocumentationController;
 use App\Http\Controllers\App\Documentation\UpsertDocumentationController;
+use App\Http\Controllers\App\Calendar\CalendarController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -35,7 +39,17 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('projects', ProjectController::class);
+    // Calendar route
+    Route::get('/calendar', [CalendarController::class, 'show'])->name('calendar.index');
+    Route::post('/calendar/sync', [CalendarController::class, 'sync'])->name('calendar.sync');
+
+    // Project routes - Browse and Upsert pattern
+    Route::get('/portfolio/projects', [BrowseProjectController::class, 'show'])->name('portfolio.projects.browse');
+    Route::get('/portfolio/projects/create', [UpsertProjectController::class, 'show'])->name('portfolio.projects.create');
+    Route::get('/portfolio/projects/{project}', [UpsertProjectController::class, 'show'])->name('portfolio.projects.show');
+    Route::post('/portfolio/projects/handle', [UpsertProjectController::class, 'handle'])->name('portfolio.projects.handle');
+    Route::patch('/portfolio/projects/{project}', [UpsertProjectController::class, 'handle'])->name('portfolio.projects.update');
+    Route::delete('/portfolio/projects/{project}', [UpsertProjectController::class, 'destroy'])->name('portfolio.projects.destroy');
 
     // File routes - Browse and Upsert pattern
     Route::get('/files', [BrowseFilesController::class, 'show'])->name('files.browse');
@@ -67,6 +81,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/integrations/google-drive/connect', [GoogleDriveIntegrationController::class, 'connect'])->name('settings.integrations.google-drive.connect');
     Route::get('/settings/integrations/google-drive/callback', [GoogleDriveIntegrationController::class, 'callback'])->name('settings.integrations.google-drive.callback');
     Route::delete('/settings/integrations/google-drive/{linkedAccount}', [DisconnectGoogleDriveController::class, 'disconnect'])->name('settings.integrations.google-drive.disconnect');
+
+    // Google Calendar Integration routes
+    Route::get('/settings/integrations/google-calendar/connect', [GoogleCalendarIntegrationController::class, 'connect'])->name('settings.integrations.google-calendar.connect');
+    Route::get('/settings/integrations/google-calendar/callback', [GoogleCalendarIntegrationController::class, 'callback'])->name('settings.integrations.google-calendar.callback');
+    Route::delete('/settings/integrations/google-calendar/{linkedAccount}', [DisconnectGoogleCalendarController::class, 'disconnect'])->name('settings.integrations.google-calendar.disconnect');
 
     // Documentation routes - Browse and Upsert pattern
     Route::get('/documentation', [BrowseDocumentationController::class, 'show'])->name('documentation.index');

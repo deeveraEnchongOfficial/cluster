@@ -46,7 +46,7 @@ export function Sidebar({ isOpen, onClose }) {
 
     const navigation = [
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'Projects', href: '/projects', icon: FolderKanban },
+        // { name: 'Projects', href: '/projects', icon: FolderKanban },
         { name: 'Files', href: '/files', icon: FileText },
         { name: 'Tasks', href: '/tasks', icon: CheckSquare },
         { name: 'Team', href: '/team', icon: Users },
@@ -55,7 +55,7 @@ export function Sidebar({ isOpen, onClose }) {
     ]
 
     const portfolioItems = [
-        { name: 'Projects', href: '/portfolio/projects', icon: Palette },
+        { name: 'Projects', href: '/portfolio/projects', icon: FolderKanban },
         { name: 'Experience', href: '/portfolio/experience', icon: Lightbulb },
         { name: 'Skills', href: '/portfolio/skills', icon: Wrench },
         { name: 'Achievements', href: '/portfolio/achievements', icon: Trophy },

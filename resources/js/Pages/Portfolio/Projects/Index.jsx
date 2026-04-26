@@ -7,25 +7,27 @@ import { Badge } from '@/Components/ui/badge'
 import { PlusCircle, Eye, Edit } from 'lucide-react'
 
 const Index = ({ projects }) => {
+  const projectsData = projects?.data || [];
+
   return (
     <AdminLayout
       title="Projects"
       description="Manage your projects"
       breadcrumbs={[
         { label: 'Dashboard', href: '/dashboard' },
-        { label: 'Projects', href: '/projects' },
+        { label: 'Projects', href: '/portfolio/projects' },
       ]}
       action={
         <Button asChild>
-          <Link href={route('projects.create')}>
-            <PlusCircle className="mr-2 h-4 w-4" />
+          <Link href={route('portfolio.projects.create')}>
+            <PlusCircle className="mr-2 w-4 h-4" />
             Create Project
           </Link>
         </Button>
       }
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {projects.data.map((project) => (
+        {projectsData.map((project) => (
           <Card key={project.id} className="transition-shadow hover:shadow-lg">
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -61,13 +63,13 @@ const Index = ({ projects }) => {
               </div>
               <div className="flex gap-2 mt-6">
                 <Button variant="outline" size="sm" asChild className="flex-1">
-                  <Link href={route('projects.show', project.id)}>
+                  <Link href={route('portfolio.projects.show', project.id)}>
                     <Eye className="mr-2 w-4 h-4" />
                     View
                   </Link>
                 </Button>
                 <Button variant="outline" size="sm" asChild className="flex-1">
-                  <Link href={route('projects.edit', project.id)}>
+                  <Link href={route('portfolio.projects.show', project.id)}>
                     <Edit className="mr-2 w-4 h-4" />
                     Edit
                   </Link>
@@ -78,7 +80,7 @@ const Index = ({ projects }) => {
         ))}
       </div>
 
-      {projects.data.length === 0 && (
+      {projectsData.length === 0 && (
         <Card>
           <CardContent className="flex flex-col justify-center items-center py-16">
             <div className="p-3 mb-4 rounded-full bg-muted">
@@ -87,7 +89,7 @@ const Index = ({ projects }) => {
             <h3 className="mb-2 text-lg font-semibold">No projects yet</h3>
             <p className="mb-4 text-muted-foreground">Get started by creating your first project.</p>
             <Button asChild>
-              <Link href={route('projects.create')}>
+              <Link href={route('portfolio.projects.create')}>
                 Create Project
               </Link>
             </Button>
@@ -95,30 +97,6 @@ const Index = ({ projects }) => {
         </Card>
       )}
 
-      {projects.links && projects.links.length > 3 && (
-        <div className="flex justify-center mt-6">
-          <div className="flex gap-1">
-            {projects.links.map((link, index) => (
-              <Button
-                key={index}
-                asChild={!!link.url}
-                variant={link.active ? 'default' : 'outline'}
-                size="sm"
-                disabled={!link.url}
-              >
-                {link.url ? (
-                  <Link
-                    href={link.url}
-                    dangerouslySetInnerHTML={{ __html: link.label }}
-                  />
-                ) : (
-                  <span dangerouslySetInnerHTML={{ __html: link.label }} />
-                )}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
     </AdminLayout>
   )
 }
