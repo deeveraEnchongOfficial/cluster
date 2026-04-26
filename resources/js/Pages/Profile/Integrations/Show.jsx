@@ -17,7 +17,14 @@ import {
   HardDrive,
   SlidersHorizontal,
   ArrowUpAZ,
-  ArrowDownAZ
+  ArrowDownAZ,
+  MessageSquare,
+  Code2,
+  Layers,
+  CreditCard,
+  Video,
+  MessageCircle,
+  Workflow
 } from 'lucide-react';
 
 const IntegrationsShow = ({ linkedAccounts }) => {
@@ -113,6 +120,141 @@ const IntegrationsShow = ({ linkedAccounts }) => {
         { label: 'Create Events', value: 'create' },
         { label: 'Manage Schedule', value: 'manage' }
       ]
+    },
+    {
+      id: 'discord',
+      name: 'Discord',
+      description: 'Connect your Discord server for notifications and messaging',
+      icon: <MessageSquare className="w-5 h-5" />,
+      iconBg: 'bg-indigo-100 dark:bg-indigo-950',
+      iconColor: 'text-indigo-600 dark:text-indigo-400',
+      connected: false,
+      disabled: true,
+      features: [
+        { label: 'Notifications', value: 'notifications' },
+        { label: 'Messaging', value: 'messaging' },
+        { label: 'Server Management', value: 'server' }
+      ]
+    },
+    {
+      id: 'github',
+      name: 'GitHub',
+      description: 'Connect your GitHub account for repository management',
+      icon: <Code2 className="w-5 h-5" />,
+      iconBg: 'bg-gray-100 dark:bg-gray-950',
+      iconColor: 'text-gray-600 dark:text-gray-400',
+      connected: false,
+      disabled: true,
+      features: [
+        { label: 'Repository Access', value: 'repo' },
+        { label: 'Issues', value: 'issues' },
+        { label: 'Pull Requests', value: 'pr' }
+      ]
+    },
+    {
+      id: 'slack',
+      name: 'Slack',
+      description: 'Connect your Slack workspace for team collaboration',
+      icon: <Layers className="w-5 h-5" />,
+      iconBg: 'bg-purple-100 dark:bg-purple-950',
+      iconColor: 'text-purple-600 dark:text-purple-400',
+      connected: false,
+      disabled: true,
+      features: [
+        { label: 'Messages', value: 'messages' },
+        { label: 'Channels', value: 'channels' },
+        { label: 'Workflows', value: 'workflows' }
+      ]
+    },
+    {
+      id: 'docker',
+      name: 'Docker',
+      description: 'Manage your Docker containers and images',
+      icon: <HardDrive className="w-5 h-5" />,
+      iconBg: 'bg-cyan-100 dark:bg-cyan-950',
+      iconColor: 'text-cyan-600 dark:text-cyan-400',
+      connected: false,
+      disabled: true,
+      features: [
+        { label: 'Container Management', value: 'containers' },
+        { label: 'Image Management', value: 'images' },
+        { label: 'Deployments', value: 'deploy' }
+      ]
+    },
+    {
+      id: 'stripe',
+      name: 'Stripe',
+      description: 'Accept payments and manage subscriptions',
+      icon: <CreditCard className="w-5 h-5" />,
+      iconBg: 'bg-violet-100 dark:bg-violet-950',
+      iconColor: 'text-violet-600 dark:text-violet-400',
+      connected: false,
+      disabled: true,
+      features: [
+        { label: 'Payments', value: 'payments' },
+        { label: 'Subscriptions', value: 'subscriptions' },
+        { label: 'Invoicing', value: 'invoicing' }
+      ]
+    },
+    {
+      id: 'zoom',
+      name: 'Zoom',
+      description: 'Schedule and manage video meetings',
+      icon: <Video className="w-5 h-5" />,
+      iconBg: 'bg-blue-100 dark:bg-blue-950',
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      connected: false,
+      disabled: true,
+      features: [
+        { label: 'Meetings', value: 'meetings' },
+        { label: 'Webinars', value: 'webinars' },
+        { label: 'Recordings', value: 'recordings' }
+      ]
+    },
+    {
+      id: 'whatsapp',
+      name: 'WhatsApp',
+      description: 'Send messages and notifications via WhatsApp',
+      icon: <MessageCircle className="w-5 h-5" />,
+      iconBg: 'bg-green-100 dark:bg-green-950',
+      iconColor: 'text-green-600 dark:text-green-400',
+      connected: false,
+      disabled: true,
+      features: [
+        { label: 'Messaging', value: 'messaging' },
+        { label: 'Notifications', value: 'notifications' },
+        { label: 'Business API', value: 'business' }
+      ]
+    },
+    {
+      id: 'telegram',
+      name: 'Telegram',
+      description: 'Connect your Telegram bot for messaging',
+      icon: <MessageSquare className="w-5 h-5" />,
+      iconBg: 'bg-sky-100 dark:bg-sky-950',
+      iconColor: 'text-sky-600 dark:text-sky-400',
+      connected: false,
+      disabled: true,
+      features: [
+        { label: 'Bot Messages', value: 'bot' },
+        { label: 'Channels', value: 'channels' },
+        { label: 'Groups', value: 'groups' }
+      ]
+    },
+    {
+      id: 'n8n',
+      name: 'n8n',
+      description: 'Automate workflows with n8n integration',
+      icon: <Workflow className="w-5 h-5" />,
+      iconBg: 'bg-orange-100 dark:bg-orange-950',
+      iconColor: 'text-orange-600 dark:text-orange-400',
+      connected: false,
+      disabled: true,
+      features: [
+        { label: 'Workflows', value: 'workflows' },
+        { label: 'Automations', value: 'automations' },
+        { label: 'Webhooks', value: 'webhooks' }
+      ]
     }
   ];
 
@@ -126,11 +268,16 @@ const IntegrationsShow = ({ linkedAccounts }) => {
         filterType === 'notConnected' ? !integration.connected : true;
       return matchesSearch && matchesFilter;
     })
-    .sort((a, b) =>
-      sort === 'asc'
+    .sort((a, b) => {
+      // Prioritize non-disabled integrations (not coming soon)
+      if (a.disabled !== b.disabled) {
+        return a.disabled ? 1 : -1;
+      }
+      // Then sort alphabetically
+      return sort === 'asc'
         ? a.name.localeCompare(b.name)
-        : b.name.localeCompare(a.name)
-    );
+        : b.name.localeCompare(a.name);
+    });
 
   const getStatusBadge = (account) => {
     if (account.is_expired) {
