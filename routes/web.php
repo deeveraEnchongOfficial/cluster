@@ -17,6 +17,7 @@ use App\Http\Controllers\App\Core\Integrations\DisconnectGoogleCalendarControlle
 use App\Http\Controllers\App\Documentation\BrowseDocumentationController;
 use App\Http\Controllers\App\Documentation\UpsertDocumentationController;
 use App\Http\Controllers\App\Calendar\CalendarController;
+use App\Http\Controllers\App\AiChatController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -42,6 +43,9 @@ Route::middleware('auth')->group(function () {
     // Calendar route
     Route::get('/calendar', [CalendarController::class, 'show'])->name('calendar.index');
     Route::post('/calendar/sync', [CalendarController::class, 'sync'])->name('calendar.sync');
+
+    // AI Chat route
+    Route::post('/api/ai/chat', [AiChatController::class, 'chat'])->name('ai.chat');
 
     // Project routes - Browse and Upsert pattern
     Route::get('/portfolio/projects', [BrowseProjectController::class, 'show'])->name('portfolio.projects.browse');
