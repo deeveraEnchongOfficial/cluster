@@ -44,6 +44,8 @@ return [
         'location' => env('GOOGLE_CLOUD_PROJECT_LOCATION', 'global'),
         'project_id' => env('GOOGLE_CLOUD_PROJECT_ID'),
         'token_expiration_default' => env('GOOGLE_TOKEN_EXPIRATION_DEFAULT', 3600), // 1 hour in seconds
+        'drive_folder_path' => env('GOOGLE_DRIVE_FOLDER_PATH'),
+        'drive_folder_url' => env('GOOGLE_DRIVE_FOLDER_URL'),
     ],
 
 ];

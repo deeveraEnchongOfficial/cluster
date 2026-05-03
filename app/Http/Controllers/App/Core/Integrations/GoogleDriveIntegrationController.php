@@ -66,6 +66,20 @@ class GoogleDriveIntegrationController extends Controller
 
         if ($existingAccount) {
             // Update existing account
+            $metadata = [
+                'email' => $user->getEmail(),
+                'name' => $user->getName(),
+                'avatar' => $user->getAvatar(),
+                'verified' => $user->user['verified_email'] ?? false,
+                'hd' => $user->user['hd'] ?? null,
+            ];
+            if (config('services.google.drive_folder_path')) {
+                $metadata['folder_path'] = config('services.google.drive_folder_path');
+            }
+            if (config('services.google.drive_folder_url')) {
+                $metadata['folder_url'] = config('services.google.drive_folder_url');
+            }
+
             $this->upsertLinkedAccount->execute(
                 $existingAccount,
                 LinkedAccountProvider::GOOGLE,
@@ -76,16 +90,24 @@ class GoogleDriveIntegrationController extends Controller
                 $request->user(),
                 $user->refreshToken,
                 $user->expiresIn ? now()->addSeconds($user->expiresIn) : null,
-                [
-                    'email' => $user->getEmail(),
-                    'name' => $user->getName(),
-                    'avatar' => $user->getAvatar(),
-                    'verified' => $user->user['verified_email'] ?? false,
-                    'hd' => $user->user['hd'] ?? null,
-                ]
+                $metadata
             );
         } else {
             // Create new account
+            $metadata = [
+                'email' => $user->getEmail(),
+                'name' => $user->getName(),
+                'avatar' => $user->getAvatar(),
+                'verified' => $user->user['verified_email'] ?? false,
+                'hd' => $user->user['hd'] ?? null,
+            ];
+            if (config('services.google.drive_folder_path')) {
+                $metadata['folder_path'] = config('services.google.drive_folder_path');
+            }
+            if (config('services.google.drive_folder_url')) {
+                $metadata['folder_url'] = config('services.google.drive_folder_url');
+            }
+
             $this->upsertLinkedAccount->execute(
                 new LinkedAccount(),
                 LinkedAccountProvider::GOOGLE,
@@ -96,13 +118,7 @@ class GoogleDriveIntegrationController extends Controller
                 $request->user(),
                 $user->refreshToken,
                 $user->expiresIn ? now()->addSeconds($user->expiresIn) : null,
-                [
-                    'email' => $user->getEmail(),
-                    'name' => $user->getName(),
-                    'avatar' => $user->getAvatar(),
-                    'verified' => $user->user['verified_email'] ?? false,
-                    'hd' => $user->user['hd'] ?? null,
-                ]
+                $metadata
             );
         }
 

@@ -10,11 +10,11 @@ import { Checkbox } from '@/Components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/Components/ui/dialog';
 import {
     Upload, Download, Eye, Trash2, FileImage, FileVideo, FileAudio,
-    FileText, FileSpreadsheet, File, Archive, Globe, Lock, RefreshCw
+    FileText, FileSpreadsheet, File, Archive, Globe, Lock, RefreshCw, ExternalLink
 } from 'lucide-react';
 import UploadModal from '@/Components/UploadModal';
 
-export default function Browse({ files, filters, hasGoogleDrive }) {
+export default function Browse({ files, filters, hasGoogleDrive, googleDriveFolderUrl }) {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [showBulkActions, setShowBulkActions] = useState(false);
@@ -98,9 +98,6 @@ export default function Browse({ files, filters, hasGoogleDrive }) {
                 imageUrl = `https://drive.google.com/thumbnail?id=${file.external_id}&sz=w1000`;
             }
 
-            console.log('Image URL:', imageUrl); // Debug log
-            console.log('File data:', { external_id: file.external_id, web_content_link: file.web_content_link });
-
             setImageLoading(true);
             setCurrentImage({
                 url: imageUrl,
@@ -148,6 +145,15 @@ export default function Browse({ files, filters, hasGoogleDrive }) {
             action={
                 hasGoogleDrive ? (
                     <div className="flex gap-2">
+                        {googleDriveFolderUrl && (
+                            <Button
+                                variant="outline"
+                                onClick={() => window.open(googleDriveFolderUrl, '_blank')}
+                            >
+                                <ExternalLink className="mr-2 w-4 h-4" />
+                                Open Drive Folder
+                            </Button>
+                        )}
                         <Button
                             variant="outline"
                             onClick={() => handleResyncFromDrive()}
@@ -402,8 +408,8 @@ export default function Browse({ files, filters, hasGoogleDrive }) {
                         {currentImage && (
                             <div className="relative">
                                 {imageLoading && (
-                                    <div className="flex absolute inset-0 justify-center items-center bg-muted rounded-lg">
-                                        <div className="w-12 h-12 rounded-full border-b-2 border-primary animate-spin"></div>
+                                    <div className="flex absolute inset-0 justify-center items-center rounded-lg bg-muted">
+                                        <div className="w-12 h-12 rounded-full border-b-2 animate-spin border-primary"></div>
                                     </div>
                                 )}
                                 <img

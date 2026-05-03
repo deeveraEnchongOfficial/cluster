@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
 
     // File routes - Browse and Upsert pattern
     Route::get('/files', [BrowseFilesController::class, 'show'])->name('files.browse');
+    Route::get('/files/api', [BrowseFilesController::class, 'api'])->name('files.api');
     Route::get('/files/{file}', [UpsertFilesController::class, 'show'])->name('files.show');
     Route::post('/files/upload', [UpsertFilesController::class, 'upload'])->name('files.upload');
     Route::patch('/files/{file}', [UpsertFilesController::class, 'update'])->name('files.update');

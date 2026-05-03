@@ -13,6 +13,9 @@ use App\Services\Core\User\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Services\Core\Storage\GoogleDriveStorage;
+use App\Services\Core\LinkedAccount\LinkedAccountRepository;
+use App\Services\Core\LinkedAccount\Enums\LinkedAccountProvider;
+use App\Services\Core\LinkedAccount\Enums\LinkedAccountFeature;
 
 class UpsertFilesController extends Controller
 {
@@ -21,6 +24,7 @@ class UpsertFilesController extends Controller
     public function __construct(
         private readonly FileUpload $fileUpload,
         private readonly GoogleDriveStorage $googleDriveStorage,
+        private readonly LinkedAccountRepository $linkedAccounts,
     ) {
         $this->middleware('auth');
     }
@@ -47,7 +51,7 @@ class UpsertFilesController extends Controller
             'files.*' => [
                 'file',
                 'max:5120', // 5MB max per file
-                'mimes:image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,video/mp4,video/avi,video/mov,video/wmv,video/flv,video/webm'
+                'mimes:jpeg,jpg,png,gif,webp,svg,mp4,avi,mov,wmv,flv,webm,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar'
             ],
             'description' => 'nullable|string|max:1000',
             'is_public' => 'boolean',
@@ -63,13 +67,28 @@ class UpsertFilesController extends Controller
         }
 
         try {
+            // Get folder path from linked account metadata or config
+            $folderPath = $validated['folder_path'] ?? null;
+            if (!$folderPath) {
+                $googleAccount = $this->linkedAccounts->findByProviderAndFeature(
+                    LinkedAccountProvider::GOOGLE,
+                    LinkedAccountFeature::DRIVE,
+                    auth()->user()
+                );
+                if ($googleAccount && isset($googleAccount->metadata['folder_path'])) {
+                    $folderPath = $googleAccount->metadata['folder_path'];
+                } elseif (config('services.google.drive_folder_path')) {
+                    $folderPath = config('services.google.drive_folder_path');
+                }
+            }
+
             $uploadedFiles = $this->fileUpload->executeMultiple(
                 $validated['files'],
                 auth()->user(),
                 $metadata,
                 $validated['is_public'] ?? false,
                 'google_drive', // Storage type
-                'Florencio(sharedFolder)/portfolio resources' // Optional folder path
+                $folderPath // Optional folder path from metadata or config
             );
 
             return back()->withToastSuccess(count($uploadedFiles) . ' files uploaded successfully to Google Drive.');

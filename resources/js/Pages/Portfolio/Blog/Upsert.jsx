@@ -10,10 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/Components/ui/badge';
 import { Separator } from '@/Components/ui/separator';
 import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { AlertCircle, Save, ArrowLeft, X } from 'lucide-react';
+import { AlertCircle, Save, ArrowLeft, X, Image as ImageIcon, Video } from 'lucide-react';
+import FileSelectorDialog from '@/Components/FileSelectorDialog';
 
 export default function Upsert({ blog }) {
     const [isPreview, setIsPreview] = useState(false);
+    const [imageDialogOpen, setImageDialogOpen] = useState(false);
+    const [videoDialogOpen, setVideoDialogOpen] = useState(false);
 
     const { data, setData, post, patch, processing, errors, reset } = useForm({
         title: blog?.title || '',
@@ -24,6 +27,8 @@ export default function Upsert({ blog }) {
         readTime: blog?.readTime || '1 min read',
         order: blog?.order || 0,
         is_published: blog?.metadata?.is_published || false,
+        images: blog?.images || [],
+        videos: blog?.videos || [],
     });
 
     const handleSubmit = (e) => {
@@ -271,6 +276,83 @@ export default function Upsert({ blog }) {
                                 </div>
                             </div>
 
+                            {/* Images and Videos */}
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                {/* Images */}
+                                <div>
+                                    <label className="block mb-2 text-sm font-medium">
+                                        Images
+                                    </label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setImageDialogOpen(true)}
+                                        className="w-full"
+                                    >
+                                        <ImageIcon className="mr-2 w-4 h-4" />
+                                        Select Images ({data.images.length})
+                                    </Button>
+                                    {data.images.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {data.images.map((imageUrl, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="overflow-hidden relative w-16 h-16 rounded-lg border"
+                                                >
+                                                    <img
+                                                        src={imageUrl}
+                                                        alt={`Image ${index + 1}`}
+                                                        className="object-cover w-full h-full"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setData('images', data.images.filter(url => url !== imageUrl))}
+                                                        className="absolute top-1 right-1 p-1 text-white bg-red-500 rounded-full hover:bg-red-600"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Videos */}
+                                <div>
+                                    <label className="block mb-2 text-sm font-medium">
+                                        Videos
+                                    </label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setVideoDialogOpen(true)}
+                                        className="w-full"
+                                    >
+                                        <Video className="mr-2 w-4 h-4" />
+                                        Select Videos ({data.videos.length})
+                                    </Button>
+                                    {data.videos.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {data.videos.map((videoUrl, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex overflow-hidden relative justify-center items-center w-16 h-16 rounded-lg border bg-muted"
+                                                >
+                                                    <Video className="w-6 h-6 text-muted-foreground" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setData('videos', data.videos.filter(url => url !== videoUrl))}
+                                                        className="absolute top-1 right-1 p-1 text-white bg-red-500 rounded-full hover:bg-red-600"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
                             {/* Actions */}
                             <div className="flex justify-end pt-6 space-x-3 border-t">
                                 <Link
@@ -302,6 +384,22 @@ export default function Upsert({ blog }) {
                         </CardContent>
                     )}
                 </Card>
+
+                {/* File Selector Dialogs */}
+                <FileSelectorDialog
+                    open={imageDialogOpen}
+                    onOpenChange={setImageDialogOpen}
+                    onSelect={(selected) => setData('images', selected)}
+                    mime_type="image"
+                    selectedFiles={data.images}
+                />
+                <FileSelectorDialog
+                    open={videoDialogOpen}
+                    onOpenChange={setVideoDialogOpen}
+                    onSelect={(selected) => setData('videos', selected)}
+                    mime_type="video"
+                    selectedFiles={data.videos}
+                />
             </div>
         </AdminLayout>
     );

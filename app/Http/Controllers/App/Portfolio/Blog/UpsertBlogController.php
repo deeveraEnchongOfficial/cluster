@@ -65,6 +65,8 @@ class UpsertBlogController extends Controller
             'readTime' => 'nullable|string|max:50',
             'order' => 'integer',
             'is_published' => 'boolean',
+            'images' => 'nullable|array',
+            'videos' => 'nullable|array',
         ]);
 
         try {
@@ -73,8 +75,8 @@ class UpsertBlogController extends Controller
                 $data['title'],
                 $data['category'] ?? [],
                 $data['excerpt'] ?? '',
-                [],
-                [],
+                $data['images'] ?? [],
+                $data['videos'] ?? [],
                 $data['order'] ?? 0,
                 $data['readTime'] ?? '1 min read',
                 \Illuminate\Support\Str::slug($data['title']),
